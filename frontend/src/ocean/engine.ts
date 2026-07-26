@@ -21,6 +21,8 @@ export class OceanEngine {
   private bg = new Background()
   private sprites: FishSprite[] = []
   private pool: Fish[] = [] // 未上场的鱼，轮换进场
+  /** 已收录的鱼 id（含场上与池子），用于去重 */
+  private known = new Set<number>()
   private raf = 0
   private last = 0
   private t = 0
@@ -62,26 +64,48 @@ export class OceanEngine {
     return Math.max(0.16, Math.min(0.38, base / 1500))
   }
 
+  /**
+   * 铺开初始鱼群。
+   * 不清空已有内容 —— 初始列表返回前 WebSocket 可能已经推来新鱼，
+   * 那些鱼要保留，靠 known 去重即可。
+   */
   setFishes(fishes: Fish[]) {
-    this.sprites = []
-    this.pool = []
-    this.label = null
     for (const f of fishes) {
+      if (this.known.has(f.id)) continue
+      this.known.add(f.id)
       if (this.sprites.length < this.maxFish) this.spawn(f, false)
       else this.pool.push(f) // 超出上限的排队，等空位或帧率允许时再游进来
     }
   }
 
-  /** 新鱼加入：满员时挤掉场上最早的一条（它退回池子，数据完整保留） */
-  addFish(f: Fish, entering: boolean) {
+  /**
+   * 新鱼加入：满员时挤掉场上最早的一条（它退回池子，数据完整保留）。
+   * 按 id 去重 —— 同一条鱼可能同时来自初始列表、自己提交的返回值、WebSocket 广播。
+   * 返回是否真的加入。
+   */
+  addFish(f: Fish, entering: boolean): boolean {
+    if (this.known.has(f.id)) {
+      // 已在场：如果是自己刚放生的，就弹一下名字牌，让人知道是哪条
+      if (entering && this.highlightId === f.id) this.spotlight(f.id)
+      return false
+    }
+    this.known.add(f.id)
+
     if (this.sprites.length >= this.maxFish) {
       if (!entering) {
         this.pool.push(f)
-        return
+        return true
       }
       this.retireOldest(1)
     }
     this.spawn(f, entering)
+    return true
+  }
+
+  /** 让某条已在场的鱼弹出名字牌 */
+  private spotlight(id: number) {
+    const sp = this.sprites.find((s) => s.id === id)
+    if (sp) this.label = { sprite: sp, born: this.t, dying: null }
   }
 
   private spawn(f: Fish, entering: boolean) {

@@ -5,11 +5,12 @@ import { OceanEngine } from '../ocean/engine'
 import type { Fish } from '../types'
 
 interface Props {
+  /** 刚放生的鱼；从大海直接进来（刷新后）时为 null */
   myFish: Fish | null
-  onBack: () => void
+  onAddFish: () => void
 }
 
-export function OceanView({ myFish, onBack }: Props) {
+export function OceanView({ myFish, onAddFish }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<OceanEngine | null>(null)
   const [total, setTotal] = useState(0)
@@ -33,15 +34,17 @@ export function OceanView({ myFish, onBack }: Props) {
       .then((list) => {
         if (cancelled) return
         engine.setFishes(list)
-        setTotal(list.length)
-        // 自己的鱼从边缘游入并弹出名字
+        // 自己刚放生的鱼通常已在列表里（提交时就入库了），
+        // addFish 会按 id 去重，重复时只弹名字牌不再多画一条
         if (myFish) engine.addFish(myFish, true)
+        setTotal(engine.count)
       })
       .catch(() => setToast('鱼群加载失败，检查后端是否已启动'))
 
     const unsub = subscribeFishes((fish) => {
-      engine.addFish(fish, true)
-      setTotal((n) => n + 1)
+      // 自己提交的鱼也会被广播回来，去重后不重复计数、不重复提示
+      if (!engine.addFish(fish, true)) return
+      setTotal(engine.count)
       setToast(`${fish.name} 放生了一条鱼`)
       window.setTimeout(() => setToast(null), 2600)
     })
@@ -68,8 +71,8 @@ export function OceanView({ myFish, onBack }: Props) {
       />
 
       <div style={hud}>
-        <button onClick={onBack} style={ghostBtn}>
-          ← 再画一条
+        <button onClick={onAddFish} style={ghostBtn}>
+          + 添加一条鱼
         </button>
         <span style={counter}>海里有 {total} 条鱼 · 点一下鱼看看是谁画的</span>
       </div>

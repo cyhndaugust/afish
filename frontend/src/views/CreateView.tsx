@@ -3,15 +3,20 @@ import { DrawCanvas, type DrawCanvasHandle } from '../components/DrawCanvas'
 import { Toolbar } from '../components/Toolbar'
 import { PALETTE, SIZES, theme } from '../theme'
 import { createFish } from '../api'
+import { loadName } from '../storage'
 import type { Fish } from '../types'
 
 interface Props {
   onDone: (fish: Fish) => void
+  /** 已经画过鱼的人可以中途返回大海 */
+  canReturn: boolean
+  onCancel: () => void
 }
 
-export function CreateView({ onDone }: Props) {
+export function CreateView({ onDone, canReturn, onCancel }: Props) {
   const canvasRef = useRef<DrawCanvasHandle>(null)
-  const [name, setName] = useState('')
+  // 老用户名字自动带出来，不用重新输
+  const [name, setName] = useState(loadName)
   const [color, setColor] = useState(PALETTE[1])
   const [size, setSize] = useState(SIZES[1])
   const [eraser, setEraser] = useState(false)
@@ -43,8 +48,12 @@ export function CreateView({ onDone }: Props) {
     <div style={page}>
       <div style={card}>
         <header style={{ marginBottom: 18 }}>
-          <h1 style={title}>画一条鱼，放进深海</h1>
-          <p style={sub}>它会和其他人的鱼一起，在同一片海里游下去。</p>
+          <h1 style={title}>{canReturn ? '再画一条鱼' : '画一条鱼，放进深海'}</h1>
+          <p style={sub}>
+            {canReturn
+              ? '这条鱼会加入你已经放生的那些，一起在海里游。'
+              : '它会和其他人的鱼一起，在同一片海里游下去。'}
+          </p>
         </header>
 
         <label style={label}>
@@ -85,9 +94,16 @@ export function CreateView({ onDone }: Props) {
 
         {error && <p style={errorText}>{error}</p>}
 
-        <button onClick={submit} disabled={submitting} style={primaryBtn}>
-          {submitting ? '正在放生…' : '放进大海 →'}
-        </button>
+        <div style={actions}>
+          {canReturn && (
+            <button onClick={onCancel} style={secondaryBtn}>
+              返回大海
+            </button>
+          )}
+          <button onClick={submit} disabled={submitting} style={primaryBtn}>
+            {submitting ? '正在放生…' : '放进大海 →'}
+          </button>
+        </div>
       </div>
     </div>
   )
@@ -134,9 +150,23 @@ const input: React.CSSProperties = {
 
 const errorText: React.CSSProperties = { color: '#fca5a5', fontSize: 13, margin: '12px 0 0' }
 
+const actions: React.CSSProperties = { display: 'flex', gap: 10, marginTop: 18 }
+
+const secondaryBtn: React.CSSProperties = {
+  flex: '0 0 auto',
+  padding: '13px 18px',
+  borderRadius: 999,
+  border: `1px solid ${theme.panelBorder}`,
+  background: theme.panel,
+  color: theme.ink,
+  fontSize: 15,
+  cursor: 'pointer',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+}
+
 const primaryBtn: React.CSSProperties = {
-  width: '100%',
-  marginTop: 18,
+  flex: 1,
   padding: '13px 20px',
   borderRadius: 999,
   border: 'none',
