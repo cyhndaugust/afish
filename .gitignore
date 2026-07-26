@@ -1,0 +1,28 @@
+# --- Python / 后端 ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.db
+*.db-journal
+*.sqlite3
+
+# --- Node / 前端 ---
+node_modules/
+dist/
+*.tsbuildinfo
+.vite/
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# --- 环境与密钥 ---
+.env
+.env.*
+!.env.example
+
+# --- 编辑器与系统 ---
+.DS_Store
+.vscode/
+.idea/
+*.swp

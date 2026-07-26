@@ -1,0 +1,28 @@
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: #041a26;
+  overscroll-behavior: none;
+}
+
+body {
+  -webkit-font-smoothing: antialiased;
+}
+
+input::placeholder {
+  color: rgba(232, 244, 248, 0.35);
+}
+
+button:focus-visible,
+input:focus-visible {
+  outline: 2px solid #4fd1c5;
+  outline-offset: 2px;
+}
