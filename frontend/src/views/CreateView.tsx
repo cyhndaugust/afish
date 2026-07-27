@@ -1,4 +1,5 @@
 import { useRef, useState } from 'react'
+import { Button, Card, Divider, Footer, Input, Title } from 'animal-island-ui'
 import { DrawCanvas, type DrawCanvasHandle } from '../components/DrawCanvas'
 import { LanguageSwitch } from '../components/LanguageSwitch'
 import { Toolbar } from '../components/Toolbar'
@@ -63,9 +64,9 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
           </div>
           <div className="header-actions">
             {canReturn && (
-              <button className="header-link" onClick={onCancel}>
+              <Button type="text" size="small" className="header-link" onClick={onCancel}>
                 {t.create.backToOcean}
-              </button>
+              </Button>
             )}
             <LanguageSwitch
               language={language}
@@ -75,11 +76,15 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
           </div>
         </header>
 
-        <section className="create-card">
+        <Card className="create-card" pattern="default">
           <header className="create-intro">
             <div>
               <p className="eyebrow">{t.create.eyebrow}</p>
-              <h1>{canReturn ? t.create.headingReturning : t.create.heading}</h1>
+              <h1>
+                <Title size="large" color="app-teal">
+                  {canReturn ? t.create.headingReturning : t.create.heading}
+                </Title>
+              </h1>
               <p className="create-description">
                 {canReturn ? t.create.descriptionReturning : t.create.description}
               </p>
@@ -93,20 +98,25 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
             </div>
           </header>
 
+          <Divider type="dashed-brown" className="form-divider" />
+
           <div className="name-row">
             <label className="field-label" htmlFor="creator-name">
               <span>{t.create.nameLabel}</span>
               <small>{t.create.nameHint}</small>
             </label>
             <div className="input-wrap">
-              <input
+              <Input
                 id="creator-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder={t.create.namePlaceholder}
                 maxLength={16}
+                size="large"
+                shadow
+                status={error === 'nameRequired' || error === 'nameTooLong' ? 'error' : undefined}
+                suffix={<span>{name.length}/16</span>}
               />
-              <span>{name.length}/16</span>
             </div>
           </div>
 
@@ -131,6 +141,8 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
             />
           </div>
 
+          <Divider type="dashed-brown" className="form-divider toolbar-divider" />
+
           <Toolbar
             language={language}
             color={color}
@@ -150,13 +162,21 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
             <div className="submit-message" role="status">
               {error ? <span className="error-text">{t.errors[error]}</span> : <span>{t.create.readyHint}</span>}
             </div>
-            <button className="primary-button" onClick={submit} disabled={submitting}>
-              <span>{submitting ? t.create.submitting : t.create.submit}</span>
-              {!submitting && <b aria-hidden="true">→</b>}
-            </button>
+            <Button
+              type="primary"
+              size="large"
+              className="primary-button"
+              onClick={submit}
+              loading={submitting}
+              disabled={submitting}
+              icon={!submitting ? <span aria-hidden="true">→</span> : undefined}
+            >
+              {submitting ? t.create.submitting : t.create.submit}
+            </Button>
           </div>
-        </section>
+        </Card>
       </main>
+      <Footer type="sea" seamless className="create-footer" />
     </div>
   )
 }

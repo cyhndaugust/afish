@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Button } from 'animal-island-ui'
 import { fetchFishes, subscribeFishes } from '../api'
 import { LanguageSwitch } from '../components/LanguageSwitch'
 import { COPY, type Language } from '../i18n'
@@ -96,9 +97,15 @@ export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Pro
             variant="ocean"
             onChange={onLanguageChange}
           />
-          <button onClick={onAddFish} className="add-fish-button">
-            <span aria-hidden="true">＋</span> {t.ocean.addFish}
-          </button>
+          <Button
+            type="primary"
+            size="small"
+            icon={<span aria-hidden="true">＋</span>}
+            onClick={onAddFish}
+            className="add-fish-button"
+          >
+            {t.ocean.addFish}
+          </Button>
         </div>
       </header>
 
