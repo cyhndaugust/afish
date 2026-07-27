@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { CreateView } from './views/CreateView'
 import { OceanView } from './views/OceanView'
+import { AdminView } from './views/AdminView'
 import { COPY, type Language } from './i18n'
 import { hasDrawn, loadDraft, loadLanguage, rememberFish, saveLanguage } from './storage'
 import type { Fish } from './types'
@@ -8,10 +9,11 @@ import type { Fish } from './types'
 export default function App() {
   const [language, setLanguage] = useState<Language>(loadLanguage)
   // 画过鱼的人（本机记录）刷新后直接进大海，不再要求重新绘制
-  const [view, setView] = useState<'create' | 'ocean'>(() => (
+  const [view, setView] = useState<'create' | 'ocean' | 'admin'>(() => (
     loadDraft() ? 'create' : hasDrawn() ? 'ocean' : 'create'
   ))
   const [myFish, setMyFish] = useState<Fish | null>(null)
+  const [adminToken, setAdminToken] = useState<string | null>(null)
 
   useEffect(() => {
     const t = COPY[language]
@@ -21,12 +23,30 @@ export default function App() {
     saveLanguage(language)
   }, [language])
 
+  if (view === 'admin' && adminToken) {
+    return (
+      <AdminView
+        token={adminToken}
+        language={language}
+        onLanguageChange={setLanguage}
+        onClose={() => {
+          setAdminToken(null)
+          setView('ocean')
+        }}
+      />
+    )
+  }
+
   if (view === 'ocean') {
     return (
       <OceanView
         myFish={myFish}
         language={language}
         onLanguageChange={setLanguage}
+        onAdmin={(token) => {
+          setAdminToken(token)
+          setView('admin')
+        }}
         onAddFish={() => {
           setMyFish(null)
           setView('create')

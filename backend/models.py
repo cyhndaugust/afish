@@ -48,6 +48,7 @@ class Stroke(BaseModel):
 class FishCreate(BaseModel):
     name: str = Field(min_length=1, max_length=16)
     strokes: List[Stroke]
+    author_id: str | None = Field(default=None, max_length=64)
 
     @field_validator("name")
     @classmethod
@@ -68,9 +69,34 @@ class FishCreate(BaseModel):
             raise ValueError("总点数过多")
         return v
 
+    @field_validator("author_id")
+    @classmethod
+    def _author_id_ok(cls, v: str | None) -> str | None:
+        if v is None:
+            return None
+        if not re.fullmatch(r"[A-Za-z0-9_-]{16,64}", v):
+            raise ValueError("作者设备标识格式不正确")
+        return v
+
 
 class FishOut(BaseModel):
     id: int
     name: str
     strokes: List[Stroke]
     created_at: str
+
+
+class AdminLogin(BaseModel):
+    username: str = Field(min_length=1, max_length=64)
+    password: str = Field(min_length=1, max_length=128)
+
+
+class AdminSessionOut(BaseModel):
+    token: str
+    username: str
+    role: str
+
+
+class AdminFishOut(FishOut):
+    author_id: str | None = None
+    deleted_at: str | None = None

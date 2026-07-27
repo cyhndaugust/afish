@@ -6,7 +6,7 @@ import { Toolbar } from '../components/Toolbar'
 import { PALETTE, SIZES } from '../theme'
 import { createFish } from '../api'
 import { COPY, type Language } from '../i18n'
-import { clearDraft, loadDraft, loadName, saveDraft } from '../storage'
+import { clearDraft, getDeviceId, loadDraft, loadName, saveDraft } from '../storage'
 import type { Fish } from '../types'
 
 interface Props {
@@ -52,7 +52,7 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
 
     setSubmitting(true)
     try {
-      const fish = await createFish(trimmed, strokes)
+      const fish = await createFish(trimmed, strokes, getDeviceId())
       clearDraft()
       draftCachedRef.current = false
       onDone(fish)

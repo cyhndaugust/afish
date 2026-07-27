@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Button } from 'animal-island-ui'
 import { fetchFishes, subscribeFishes } from '../api'
+import { AdminLoginModal } from '../components/AdminLoginModal'
 import { LanguageSwitch } from '../components/LanguageSwitch'
 import { COPY, type Language } from '../i18n'
 import { OceanEngine } from '../ocean/engine'
@@ -12,16 +13,21 @@ interface Props {
   language: Language
   onLanguageChange: (language: Language) => void
   onAddFish: () => void
+  onAdmin: (token: string) => void
 }
 
 type Toast = { kind: 'load-error' } | { kind: 'released'; name: string }
 
-export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Props) {
+export function OceanView({ myFish, language, onLanguageChange, onAddFish, onAdmin }: Props) {
   const t = COPY[language]
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<OceanEngine | null>(null)
+  const adminClickCountRef = useRef(0)
+  const adminClickTimerRef = useRef<number | undefined>(undefined)
   const [total, setTotal] = useState(0)
   const [toast, setToast] = useState<Toast | null>(null)
+  const [adminVisible, setAdminVisible] = useState(false)
+  const [loginOpen, setLoginOpen] = useState(false)
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -48,13 +54,18 @@ export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Pro
       })
       .catch(() => setToast({ kind: 'load-error' }))
 
-    const unsub = subscribeFishes((fish) => {
-      // 自己提交的鱼也会被广播回来，去重后不重复计数、不重复提示
-      if (!engine.addFish(fish, true)) return
-      setTotal(engine.count)
-      setToast({ kind: 'released', name: fish.name })
-      window.setTimeout(() => setToast(null), 2600)
-    })
+    const unsub = subscribeFishes(
+      (fish) => {
+        // 自己提交的鱼也会被广播回来，去重后不重复计数、不重复提示
+        if (!engine.addFish(fish, true)) return
+        setTotal(engine.count)
+        setToast({ kind: 'released', name: fish.name })
+        window.setTimeout(() => setToast(null), 2600)
+      },
+      (fishId) => {
+        if (engine.removeFish(fishId)) setTotal(engine.count)
+      },
+    )
 
     return () => {
       cancelled = true
@@ -68,6 +79,21 @@ export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Pro
   useEffect(() => {
     engineRef.current?.setLanguage(language)
   }, [language])
+
+  useEffect(() => () => window.clearTimeout(adminClickTimerRef.current), [])
+
+  const onAdminTrigger = () => {
+    window.clearTimeout(adminClickTimerRef.current)
+    adminClickCountRef.current += 1
+    if (adminClickCountRef.current >= 3) {
+      adminClickCountRef.current = 0
+      setAdminVisible(true)
+      return
+    }
+    adminClickTimerRef.current = window.setTimeout(() => {
+      adminClickCountRef.current = 0
+    }, 1200)
+  }
 
   const onTap = (e: React.PointerEvent<HTMLCanvasElement>) => {
     engineRef.current?.handleTap(e.clientX, e.clientY)
@@ -84,13 +110,22 @@ export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Pro
 
       <header className="ocean-header">
         <div className="ocean-brand">
-          <span className="brand-mark" aria-hidden="true"><span /></span>
+          <span
+            className="brand-mark admin-trigger"
+            aria-hidden="true"
+            onClick={onAdminTrigger}
+          ><span /></span>
           <div>
             <strong>{t.title}</strong>
             <span>{t.ocean.count(total)}</span>
           </div>
         </div>
         <div className="ocean-actions">
+          {adminVisible && (
+            <Button type="text" size="small" className="admin-entry-button" onClick={() => setLoginOpen(true)}>
+              {t.ocean.manage}
+            </Button>
+          )}
           <LanguageSwitch
             language={language}
             label={t.languageLabel}
@@ -118,6 +153,14 @@ export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Pro
         <div className="ocean-toast">
           {toast.kind === 'load-error' ? t.errors.loadFailed : t.ocean.released(toast.name)}
         </div>
+      )}
+
+      {loginOpen && (
+        <AdminLoginModal
+          language={language}
+          onClose={() => setLoginOpen(false)}
+          onSuccess={onAdmin}
+        />
       )}
     </div>
   )

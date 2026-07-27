@@ -658,6 +658,11 @@ button.primary-button:disabled {
   font-weight: 700;
 }
 
+.ocean-brand .admin-trigger {
+  pointer-events: auto;
+  cursor: default;
+}
+
 .ocean-actions {
   pointer-events: auto;
 }
@@ -697,12 +702,332 @@ button.primary-button:disabled {
   box-shadow: 0 5px 0 #d9a810, 0 12px 24px rgba(0, 28, 31, 0.2);
 }
 
+.ocean-actions button.admin-entry-button {
+  height: 36px;
+  padding: 0 14px;
+  border: 2px solid rgba(212, 196, 168, 0.9);
+  border-radius: 999px;
+  color: #725d42;
+  background: rgba(247, 243, 223, 0.92);
+  box-shadow: 0 4px 0 rgba(44, 91, 83, 0.34);
+  font-size: 11px;
+  font-weight: 900;
+}
+
 .ocean-tip,
 .ocean-toast {
   position: absolute;
   left: 50%;
   transform: translateX(-50%);
   white-space: nowrap;
+}
+
+/* 管理员登录 */
+.admin-modal-backdrop {
+  position: fixed;
+  z-index: 20;
+  inset: 0;
+  display: grid;
+  padding: 20px;
+  place-items: center;
+  background: rgba(5, 27, 31, 0.66);
+  backdrop-filter: blur(8px);
+}
+
+.admin-login-modal {
+  position: relative;
+  display: grid;
+  width: min(100%, 420px);
+  padding: 34px;
+  gap: 18px;
+  border: 2px solid #d4c4a8;
+  border-radius: 26px;
+  background: #f7f3df;
+  box-shadow: 0 9px 0 rgba(23, 69, 64, 0.42), 0 24px 60px rgba(0, 20, 24, 0.34);
+}
+
+.admin-login-modal h2,
+.admin-login-modal p {
+  margin: 0;
+}
+
+.admin-login-modal h2 {
+  color: #385f56;
+  font-size: 24px;
+}
+
+.admin-login-modal p {
+  color: #8d7a60;
+  font-size: 13px;
+}
+
+.admin-login-modal label {
+  display: grid;
+  gap: 7px;
+  color: #725d42;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-login-modal input {
+  width: 100%;
+  height: 44px;
+  padding: 0 14px;
+  border: 2px solid #cdbd9e;
+  border-radius: 12px;
+  color: #4d4234;
+  background: #fffdf3;
+}
+
+.admin-modal-close {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: 50%;
+  color: #8d7a60;
+  background: #e9e0ca;
+  cursor: pointer;
+}
+
+.admin-login-message {
+  min-height: 18px;
+  color: #c84e4e;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-login-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* 鱼群管理页 */
+.admin-page {
+  min-height: 100dvh;
+  padding: 28px 32px 56px;
+  overflow: auto;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(255, 255, 255, 0.64), transparent 26%),
+    linear-gradient(180deg, #a9e2d8, #d8eee2 55%, #b8d98d);
+}
+
+.admin-header {
+  display: flex;
+  width: min(100%, 1100px);
+  align-items: center;
+  justify-content: space-between;
+  margin: 0 auto;
+  padding: 24px 28px;
+  gap: 20px;
+  border: 2px solid #d4c4a8;
+  border-radius: 24px;
+  background: rgba(247, 243, 223, 0.94);
+  box-shadow: 0 7px 0 rgba(91, 131, 92, 0.24);
+}
+
+.admin-header p,
+.admin-header h1,
+.admin-header span {
+  margin: 0;
+}
+
+.admin-header p {
+  color: #589985;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.admin-header h1 {
+  margin: 4px 0;
+  color: #385f56;
+  font-size: 28px;
+}
+
+.admin-header > div > span {
+  color: #8d7a60;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.admin-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-warning,
+.admin-error,
+.admin-empty,
+.admin-fish-list {
+  width: min(100%, 1100px);
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.admin-warning,
+.admin-error {
+  margin-top: 20px;
+  padding: 13px 16px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.admin-warning {
+  border: 2px solid #e5b744;
+  color: #765b18;
+  background: #fff1b9;
+}
+
+.admin-error {
+  border: 2px solid #d77869;
+  color: #953c34;
+  background: #ffe1da;
+}
+
+.admin-empty {
+  margin-top: 24px;
+  padding: 60px 20px;
+  border: 2px dashed #b9aa8e;
+  border-radius: 22px;
+  color: #7f6c52;
+  background: rgba(247, 243, 223, 0.8);
+  text-align: center;
+  font-weight: 800;
+}
+
+.admin-fish-list {
+  display: grid;
+  margin-top: 24px;
+  gap: 16px;
+}
+
+.admin-fish-card {
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr) auto;
+  align-items: center;
+  padding: 18px;
+  gap: 20px;
+  border: 2px solid #d4c4a8;
+  border-radius: 22px;
+  background: rgba(255, 253, 243, 0.94);
+  box-shadow: 0 5px 0 rgba(91, 131, 92, 0.2);
+}
+
+.admin-fish-card.is-deleted {
+  opacity: 0.68;
+  background: rgba(235, 229, 215, 0.95);
+}
+
+.admin-fish-preview {
+  display: block;
+  width: 220px;
+  height: 128px;
+  border: 2px solid #6aaea5;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #235a66, #153c47);
+}
+
+.admin-fish-info {
+  min-width: 0;
+}
+
+.admin-fish-title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.admin-fish-title h2 {
+  margin: 0;
+  overflow: hidden;
+  color: #4f4435;
+  font-size: 20px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-fish-title span {
+  padding: 4px 8px;
+  border-radius: 999px;
+  font-size: 10px;
+  font-weight: 900;
+}
+
+.admin-fish-title span.active {
+  color: #287464;
+  background: #d4f1dd;
+}
+
+.admin-fish-title span.deleted {
+  color: #8d4b43;
+  background: #f4d6cf;
+}
+
+.admin-fish-info dl {
+  display: grid;
+  margin: 14px 0 0;
+  gap: 6px;
+}
+
+.admin-fish-info dl div {
+  display: grid;
+  grid-template-columns: 86px minmax(0, 1fr);
+  gap: 8px;
+}
+
+.admin-fish-info dt,
+.admin-fish-info dd {
+  margin: 0;
+  font-size: 11px;
+}
+
+.admin-fish-info dt {
+  color: #9b896d;
+  font-weight: 800;
+}
+
+.admin-fish-info dd {
+  overflow: hidden;
+  color: #665743;
+  font-weight: 700;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.admin-fish-actions {
+  display: grid;
+  min-width: 124px;
+  gap: 9px;
+}
+
+.admin-fish-actions button {
+  min-height: 36px;
+  padding: 7px 12px;
+  border: 2px solid #70ab91;
+  border-radius: 10px;
+  color: #34725f;
+  background: #e1f2e2;
+  cursor: pointer;
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.admin-fish-actions button.danger {
+  border-color: #d77869;
+  color: #a6453b;
+  background: #ffe1da;
+}
+
+.admin-fish-actions button:disabled {
+  opacity: 0.5;
+  cursor: wait;
 }
 
 .ocean-tip {
@@ -780,6 +1105,20 @@ button.primary-button:disabled {
 
   .size-group {
     padding-left: 0;
+  }
+
+  .admin-fish-card {
+    grid-template-columns: 180px minmax(0, 1fr);
+  }
+
+  .admin-fish-preview {
+    width: 180px;
+    height: 108px;
+  }
+
+  .admin-fish-actions {
+    grid-column: 1 / -1;
+    grid-template-columns: 1fr 1fr;
   }
 }
 
@@ -954,6 +1293,41 @@ button.primary-button:disabled {
     height: 34px;
     padding: 0 11px;
     font-size: 10px;
+  }
+
+  .ocean-actions button.admin-entry-button {
+    height: 32px;
+    padding: 0 9px;
+    font-size: 9px;
+  }
+
+  .admin-page {
+    padding: 14px 12px 36px;
+  }
+
+  .admin-header {
+    align-items: flex-start;
+    flex-direction: column;
+    padding: 20px;
+  }
+
+  .admin-header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .admin-fish-card {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-fish-preview {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 220 / 128;
+  }
+
+  .admin-fish-actions {
+    grid-column: auto;
   }
 
   .ocean-tip {

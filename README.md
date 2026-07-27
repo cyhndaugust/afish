@@ -117,6 +117,14 @@ Open <http://localhost:8080>. To use another host port, set `AFISH_PORT`, for ex
 AFISH_PORT=80 docker compose up --build -d
 ```
 
+The fish management account defaults to `admin` / `123`. Persist a strong password before public deployment:
+
+```bash
+cp .env.example .env
+# Edit AFISH_ADMIN_PASSWORD in .env, then rebuild the services.
+docker compose up --build -d
+```
+
 Useful operations:
 
 ```bash

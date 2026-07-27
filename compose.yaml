@@ -5,6 +5,7 @@ services:
     restart: unless-stopped
     environment:
       AFISH_DB_PATH: /data/fishes.db
+      AFISH_ADMIN_PASSWORD: ${AFISH_ADMIN_PASSWORD:-123}
     volumes:
       - afish-data:/data
     healthcheck:

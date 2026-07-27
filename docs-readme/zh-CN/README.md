@@ -117,6 +117,14 @@ docker compose up --build -d
 AFISH_PORT=80 docker compose up --build -d
 ```
 
+鱼群管理账号默认为 `admin` / `123`。公开部署前请持久化设置强密码：
+
+```bash
+cp .env.example .env
+# 修改 .env 中的 AFISH_ADMIN_PASSWORD 后重新构建服务。
+docker compose up --build -d
+```
+
 常用运维命令：
 
 ```bash

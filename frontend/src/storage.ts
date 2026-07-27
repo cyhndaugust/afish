@@ -9,6 +9,7 @@ const NAME_KEY = 'fish.name'
 const MINE_KEY = 'fish.mine'
 const LANGUAGE_KEY = 'fish.language'
 const DRAFT_KEY = 'fish.draft'
+const DEVICE_KEY = 'fish.device'
 
 export interface FishDraft {
   name: string
@@ -94,6 +95,21 @@ export function clearDraft(): void {
     localStorage.removeItem(DRAFT_KEY)
   } catch {
     /* 忽略 */
+  }
+}
+
+/** 随机设备标识仅用于区分作品来源，不采集浏览器指纹，也不作为认证凭证。 */
+export function getDeviceId(): string {
+  try {
+    const existing = localStorage.getItem(DEVICE_KEY)
+    if (existing) return existing
+    const generated = typeof crypto.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : `device_${Date.now()}_${Math.random().toString(36).slice(2)}`
+    localStorage.setItem(DEVICE_KEY, generated)
+    return generated
+  } catch {
+    return `device_${Date.now()}_${Math.random().toString(36).slice(2)}`
   }
 }
 

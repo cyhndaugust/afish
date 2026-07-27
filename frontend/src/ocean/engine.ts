@@ -114,6 +114,18 @@ export class OceanEngine {
     return true
   }
 
+  /** 管理端删除后同步移出场上与候场池；恢复时允许以同一 id 重新加入。 */
+  removeFish(id: number): boolean {
+    if (!this.known.delete(id)) return false
+    const removedSprite = this.sprites.find((sprite) => sprite.id === id)
+    this.sprites = this.sprites.filter((sprite) => sprite.id !== id)
+    this.pool = this.pool.filter((fish) => fish.id !== id)
+    if (removedSprite && this.label?.sprite === removedSprite) this.label = null
+    if (removedSprite && this.lastTap?.sprite === removedSprite) this.lastTap = null
+    this.admitFromPool()
+    return true
+  }
+
   /** 让某条已在场的鱼弹出名字牌 */
   private spotlight(id: number) {
     const sp = this.sprites.find((s) => s.id === id)

@@ -13,6 +13,17 @@ export interface Fish {
   created_at: string
 }
 
+export interface AdminFish extends Fish {
+  author_id: string | null
+  deleted_at: string | null
+}
+
+export interface AdminSession {
+  token: string
+  username: string
+  role: string
+}
+
 /** 绘制画布的逻辑尺寸，必须与后端 models.py 保持一致 */
 export const CANVAS_W = 480
 export const CANVAS_H = 320
