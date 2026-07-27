@@ -1,4 +1,5 @@
 import type { Fish } from '../types'
+import { COPY, type Language } from '../i18n'
 import { theme } from '../theme'
 import { Background } from './background'
 import { FishSprite } from './FishSprite'
@@ -9,19 +10,6 @@ const MIN_FISH = 8 // 性能降级的下限，再卡也保留这么多
 const LABEL_HOLD = 2.5 // 名字牌停留秒数
 const LABEL_FADE = 0.35
 const DOUBLE_TAP_WINDOW = 0.36
-
-const FISH_DIALOGUES = [
-  '等等，我先游一步！',
-  '今天的水温刚刚好。',
-  '你也喜欢这片海吗？',
-  '嘘，我在听海草说话。',
-  '跟紧我，前面有亮光。',
-  '别眨眼，我要加速啦！',
-  '我刚刚看到一颗星星。',
-  '要一起去深处看看吗？',
-  '帮我向下一条鱼问好。',
-  '海底的风，正吹向那边。',
-]
 
 interface Label {
   sprite: FishSprite
@@ -50,13 +38,20 @@ export class OceanEngine {
   private frameTimes: number[] = []
   private highlightId: number | null = null
   private lastTap: { sprite: FishSprite; at: number } | null = null
+  private language: Language
 
-  constructor(canvas: HTMLCanvasElement) {
+  constructor(canvas: HTMLCanvasElement, language: Language) {
     this.canvas = canvas
+    this.language = language
     this.ctx = canvas.getContext('2d')!
     this.isMobile = matchMedia('(pointer: coarse)').matches || innerWidth < 720
     this.maxFish = this.isMobile ? MOBILE_MAX : DESKTOP_MAX
     this.resize()
+  }
+
+  setLanguage(language: Language) {
+    this.language = language
+    if (this.label?.kind === 'dialogue') this.label = null
   }
 
   /** 高亮某条鱼（刚提交的自己的鱼），进场时自动弹出名字 */
@@ -167,7 +162,8 @@ export class OceanEngine {
           this.lastTap?.sprite === sprite && this.t - this.lastTap.at <= DOUBLE_TAP_WINDOW
 
         if (doubleTapped) {
-          const line = FISH_DIALOGUES[Math.floor(Math.random() * FISH_DIALOGUES.length)]
+          const dialogues = COPY[this.language].dialogues
+          const line = dialogues[Math.floor(Math.random() * dialogues.length)]
           sprite.triggerDash(this.t)
           this.showLabel(sprite, line, 'dialogue')
           this.lastTap = null

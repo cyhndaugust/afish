@@ -2,7 +2,7 @@ import type { Fish, Stroke } from './types'
 
 export async function fetchFishes(limit = 120): Promise<Fish[]> {
   const res = await fetch(`/api/fishes?limit=${limit}`)
-  if (!res.ok) throw new Error(`加载鱼群失败 (${res.status})`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
   return res.json()
 }
 
@@ -13,14 +13,7 @@ export async function createFish(name: string, strokes: Stroke[]): Promise<Fish>
     body: JSON.stringify({ name, strokes }),
   })
   if (!res.ok) {
-    let detail = `提交失败 (${res.status})`
-    try {
-      const body = await res.json()
-      if (typeof body.detail === 'string') detail = body.detail
-    } catch {
-      /* 忽略解析失败，用默认文案 */
-    }
-    throw new Error(detail)
+    throw new Error(`HTTP ${res.status}`)
   }
   return res.json()
 }

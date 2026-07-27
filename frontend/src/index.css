@@ -121,6 +121,60 @@ input:focus-visible {
   color: #213a40;
 }
 
+.header-actions,
+.ocean-actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ocean-actions {
+  pointer-events: auto;
+}
+
+.language-switch {
+  display: flex;
+  align-items: center;
+  border: 1px solid #bfc1ba;
+  border-radius: 2px;
+}
+
+.language-switch button {
+  min-width: 38px;
+  height: 27px;
+  padding: 0 8px;
+  border: 0;
+  border-right: 1px solid #c8c9c2;
+  color: #727c79;
+  background: transparent;
+  cursor: pointer;
+  font-size: 10px;
+}
+
+.language-switch button:last-child {
+  border-right: 0;
+}
+
+.language-switch button.is-active {
+  color: #f5f2e9;
+  background: #29464c;
+}
+
+.language-switch.ocean {
+  border-color: rgba(242, 240, 232, 0.2);
+}
+
+.language-switch.ocean button {
+  border-color: rgba(242, 240, 232, 0.15);
+  color: rgba(242, 240, 232, 0.48);
+  text-shadow: 0 1px 8px rgba(0, 10, 13, 0.6);
+}
+
+.language-switch.ocean button.is-active {
+  color: rgba(242, 240, 232, 0.86);
+  background: rgba(242, 240, 232, 0.12);
+}
+
 .create-card {
   margin-top: 28px;
   padding-top: 42px;
@@ -758,6 +812,15 @@ input:focus-visible {
   }
 
   .add-fish-button {
-    padding: 10px 11px;
+    padding: 8px 2px 6px;
+  }
+
+  .ocean-actions {
+    gap: 9px;
+  }
+
+  .language-switch.ocean button {
+    min-width: 32px;
+    padding: 0 6px;
   }
 }

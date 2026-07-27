@@ -12,6 +12,8 @@ interface Props {
   size: number
   eraser: boolean
   showGuide: boolean
+  label: string
+  guideText: string
   onChange: (strokeCount: number) => void
 }
 
@@ -23,7 +25,7 @@ function dist(a: Point, b: [number, number]): number {
 }
 
 export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanvas(
-  { color, size, eraser, showGuide, onChange },
+  { color, size, eraser, showGuide, label, guideText, onChange },
   ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -42,14 +44,14 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
     ctx.clearRect(0, 0, CANVAS_W, CANVAS_H)
 
-    if (showGuide) drawGuide(ctx)
+    if (showGuide) drawGuide(ctx, guideText)
 
     const all = currentRef.current
       ? [...strokesRef.current, currentRef.current]
       : strokesRef.current
     for (const s of all) paintStroke(ctx, s)
     ctx.restore()
-  }, [showGuide])
+  }, [guideText, showGuide])
 
   // 初始化尺寸（含 dpr）
   useEffect(() => {
@@ -139,7 +141,7 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     <canvas
       ref={canvasRef}
       className={`draw-canvas${eraser ? ' is-erasing' : ''}`}
-      aria-label="小鱼绘制画布"
+      aria-label={label}
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -177,7 +179,7 @@ function paintStroke(ctx: CanvasRenderingContext2D, s: Stroke) {
 }
 
 /** 鱼形参考底图：仅提示朝向与构图，不计入笔触 */
-function drawGuide(ctx: CanvasRenderingContext2D) {
+function drawGuide(ctx: CanvasRenderingContext2D, guideText: string) {
   ctx.save()
   ctx.strokeStyle = 'rgba(255,255,255,0.10)'
   ctx.lineWidth = 2
@@ -205,6 +207,6 @@ function drawGuide(ctx: CanvasRenderingContext2D) {
   ctx.fillStyle = 'rgba(255,255,255,0.22)'
   ctx.font = '13px sans-serif'
   ctx.textAlign = 'left'
-  ctx.fillText('← 鱼头朝左', 16, 26)
+  ctx.fillText(guideText, 16, 26)
   ctx.restore()
 }

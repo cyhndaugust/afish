@@ -1,25 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
 import { fetchFishes, subscribeFishes } from '../api'
+import { LanguageSwitch } from '../components/LanguageSwitch'
+import { COPY, type Language } from '../i18n'
 import { OceanEngine } from '../ocean/engine'
 import type { Fish } from '../types'
 
 interface Props {
   /** 刚放生的鱼；从大海直接进来（刷新后）时为 null */
   myFish: Fish | null
+  language: Language
+  onLanguageChange: (language: Language) => void
   onAddFish: () => void
 }
 
-export function OceanView({ myFish, onAddFish }: Props) {
+type Toast = { kind: 'load-error' } | { kind: 'released'; name: string }
+
+export function OceanView({ myFish, language, onLanguageChange, onAddFish }: Props) {
+  const t = COPY[language]
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const engineRef = useRef<OceanEngine | null>(null)
   const [total, setTotal] = useState(0)
-  const [toast, setToast] = useState<string | null>(null)
+  const [toast, setToast] = useState<Toast | null>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const engine = new OceanEngine(canvas)
+    const engine = new OceanEngine(canvas, language)
     engineRef.current = engine
     if (myFish) engine.setHighlight(myFish.id)
     engine.start()
@@ -38,13 +45,13 @@ export function OceanView({ myFish, onAddFish }: Props) {
         if (myFish) engine.addFish(myFish, true)
         setTotal(engine.count)
       })
-      .catch(() => setToast('鱼群加载失败，检查后端是否已启动'))
+      .catch(() => setToast({ kind: 'load-error' }))
 
     const unsub = subscribeFishes((fish) => {
       // 自己提交的鱼也会被广播回来，去重后不重复计数、不重复提示
       if (!engine.addFish(fish, true)) return
       setTotal(engine.count)
-      setToast(`${fish.name} 放生了一条鱼`)
+      setToast({ kind: 'released', name: fish.name })
       window.setTimeout(() => setToast(null), 2600)
     })
 
@@ -57,6 +64,10 @@ export function OceanView({ myFish, onAddFish }: Props) {
     }
   }, [myFish])
 
+  useEffect(() => {
+    engineRef.current?.setLanguage(language)
+  }, [language])
+
   const onTap = (e: React.PointerEvent<HTMLCanvasElement>) => {
     engineRef.current?.handleTap(e.clientX, e.clientY)
   }
@@ -65,6 +76,7 @@ export function OceanView({ myFish, onAddFish }: Props) {
     <div className="ocean-view">
       <canvas
         ref={canvasRef}
+        aria-label={t.ocean.canvasLabel}
         onPointerDown={onTap}
         className="ocean-canvas"
       />
@@ -73,21 +85,33 @@ export function OceanView({ myFish, onAddFish }: Props) {
         <div className="ocean-brand">
           <span className="brand-mark" aria-hidden="true"><span /></span>
           <div>
-            <strong>深海共创</strong>
-            <span>海里有 {total} 条鱼</span>
+            <strong>{t.title}</strong>
+            <span>{t.ocean.count(total)}</span>
           </div>
         </div>
-        <button onClick={onAddFish} className="add-fish-button">
-          <span aria-hidden="true">＋</span> 添加一条鱼
-        </button>
+        <div className="ocean-actions">
+          <LanguageSwitch
+            language={language}
+            label={t.languageLabel}
+            variant="ocean"
+            onChange={onLanguageChange}
+          />
+          <button onClick={onAddFish} className="add-fish-button">
+            <span aria-hidden="true">＋</span> {t.ocean.addFish}
+          </button>
+        </div>
       </header>
 
       <div className="ocean-tip">
         <span aria-hidden="true">⌁</span>
-        点按看名字 · 双击听它说话
+        {t.ocean.tip}
       </div>
 
-      {toast && <div className="ocean-toast">{toast}</div>}
+      {toast && (
+        <div className="ocean-toast">
+          {toast.kind === 'load-error' ? t.errors.loadFailed : t.ocean.released(toast.name)}
+        </div>
+      )}
     </div>
   )
 }

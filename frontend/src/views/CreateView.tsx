@@ -1,19 +1,26 @@
 import { useRef, useState } from 'react'
 import { DrawCanvas, type DrawCanvasHandle } from '../components/DrawCanvas'
+import { LanguageSwitch } from '../components/LanguageSwitch'
 import { Toolbar } from '../components/Toolbar'
 import { PALETTE, SIZES } from '../theme'
 import { createFish } from '../api'
+import { COPY, type Language } from '../i18n'
 import { loadName } from '../storage'
 import type { Fish } from '../types'
 
 interface Props {
   onDone: (fish: Fish) => void
+  language: Language
+  onLanguageChange: (language: Language) => void
   /** 已经画过鱼的人可以中途返回大海 */
   canReturn: boolean
   onCancel: () => void
 }
 
-export function CreateView({ onDone, canReturn, onCancel }: Props) {
+type ErrorKey = keyof typeof COPY.en.errors
+
+export function CreateView({ onDone, language, onLanguageChange, canReturn, onCancel }: Props) {
+  const t = COPY[language]
   const canvasRef = useRef<DrawCanvasHandle>(null)
   // 老用户名字自动带出来，不用重新输
   const [name, setName] = useState(loadName)
@@ -22,23 +29,23 @@ export function CreateView({ onDone, canReturn, onCancel }: Props) {
   const [eraser, setEraser] = useState(false)
   const [showGuide, setShowGuide] = useState(true)
   const [strokeCount, setStrokeCount] = useState(0)
-  const [error, setError] = useState<string | null>(null)
+  const [error, setError] = useState<ErrorKey | null>(null)
   const [submitting, setSubmitting] = useState(false)
 
   const submit = async () => {
     setError(null)
     const trimmed = name.trim()
-    if (!trimmed) return setError('先给自己起个名字吧')
-    if (trimmed.length > 16) return setError('名字最多 16 个字')
+    if (!trimmed) return setError('nameRequired')
+    if (trimmed.length > 16) return setError('nameTooLong')
     const strokes = canvasRef.current?.getStrokes() ?? []
-    if (strokes.length === 0) return setError('还没画鱼呢')
+    if (strokes.length === 0) return setError('fishRequired')
 
     setSubmitting(true)
     try {
       const fish = await createFish(trimmed, strokes)
       onDone(fish)
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '提交失败，稍后再试')
+    } catch {
+      setError('submitFailed')
     } finally {
       setSubmitting(false)
     }
@@ -52,46 +59,51 @@ export function CreateView({ onDone, canReturn, onCancel }: Props) {
             <span className="brand-mark" aria-hidden="true">
               <span />
             </span>
-            <span>深海共创</span>
+            <span>{t.title}</span>
           </div>
-          {canReturn && (
-            <button className="header-link" onClick={onCancel}>
-              返回大海
-            </button>
-          )}
+          <div className="header-actions">
+            {canReturn && (
+              <button className="header-link" onClick={onCancel}>
+                {t.create.backToOcean}
+              </button>
+            )}
+            <LanguageSwitch
+              language={language}
+              label={t.languageLabel}
+              onChange={onLanguageChange}
+            />
+          </div>
         </header>
 
         <section className="create-card">
           <header className="create-intro">
             <div>
-              <p className="eyebrow">深海共创计划</p>
-              <h1>{canReturn ? '再画一条，加入鱼群' : '画一条鱼，放进深海'}</h1>
+              <p className="eyebrow">{t.create.eyebrow}</p>
+              <h1>{canReturn ? t.create.headingReturning : t.create.heading}</h1>
               <p className="create-description">
-                {canReturn
-                  ? '留下新的颜色和笔触，让它和你之前的小鱼一起游。'
-                  : '写下名字，画出你的小鱼。它会和大家的作品一起，在同一片海里游下去。'}
+                {canReturn ? t.create.descriptionReturning : t.create.description}
               </p>
             </div>
-            <div className="step-list" aria-label="创作步骤">
-              <span className="step-item step-active"><b>1</b> 留名</span>
+            <div className="step-list" aria-label={t.create.stepsLabel}>
+              <span className="step-item step-active"><b>1</b> {t.create.stepName}</span>
               <i aria-hidden="true" />
-              <span className="step-item"><b>2</b> 画鱼</span>
+              <span className="step-item"><b>2</b> {t.create.stepDraw}</span>
               <i aria-hidden="true" />
-              <span className="step-item"><b>3</b> 放生</span>
+              <span className="step-item"><b>3</b> {t.create.stepRelease}</span>
             </div>
           </header>
 
           <div className="name-row">
             <label className="field-label" htmlFor="creator-name">
-              <span>你的名字</span>
-              <small>会显示在小鱼的名字牌上</small>
+              <span>{t.create.nameLabel}</span>
+              <small>{t.create.nameHint}</small>
             </label>
             <div className="input-wrap">
               <input
                 id="creator-name"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="怎么称呼你？"
+                placeholder={t.create.namePlaceholder}
                 maxLength={16}
               />
               <span>{name.length}/16</span>
@@ -101,10 +113,10 @@ export function CreateView({ onDone, canReturn, onCancel }: Props) {
           <div className="canvas-section">
             <div className="section-heading">
               <div>
-                <span className="section-number">第二步</span>
-                <strong>画出你的小鱼</strong>
+                <span className="section-number">{t.create.secondStep}</span>
+                <strong>{t.create.drawHeading}</strong>
               </div>
-              <span>鱼头朝左 · 大胆下笔</span>
+              <span>{t.create.drawHint}</span>
             </div>
 
             <DrawCanvas
@@ -113,11 +125,14 @@ export function CreateView({ onDone, canReturn, onCancel }: Props) {
               size={size}
               eraser={eraser}
               showGuide={showGuide}
+              label={t.canvas.label}
+              guideText={t.canvas.guide}
               onChange={setStrokeCount}
             />
           </div>
 
           <Toolbar
+            language={language}
             color={color}
             size={size}
             eraser={eraser}
@@ -133,10 +148,10 @@ export function CreateView({ onDone, canReturn, onCancel }: Props) {
 
           <div className="submit-row">
             <div className="submit-message" role="status">
-              {error ? <span className="error-text">{error}</span> : <span>完成后，它会马上游进大海</span>}
+              {error ? <span className="error-text">{t.errors[error]}</span> : <span>{t.create.readyHint}</span>}
             </div>
             <button className="primary-button" onClick={submit} disabled={submitting}>
-              <span>{submitting ? '正在放生…' : '放进大海'}</span>
+              <span>{submitting ? t.create.submitting : t.create.submit}</span>
               {!submitting && <b aria-hidden="true">→</b>}
             </button>
           </div>

@@ -1,4 +1,5 @@
 import type { Fish } from './types'
+import type { Language } from './i18n'
 
 /**
  * 本地记住「我是谁、我画过哪些鱼」。
@@ -6,6 +7,24 @@ import type { Fish } from './types'
  */
 const NAME_KEY = 'fish.name'
 const MINE_KEY = 'fish.mine'
+const LANGUAGE_KEY = 'fish.language'
+
+/** 首次访问默认英文；选择过语言后沿用本机设置。 */
+export function loadLanguage(): Language {
+  try {
+    return localStorage.getItem(LANGUAGE_KEY) === 'zh' ? 'zh' : 'en'
+  } catch {
+    return 'en'
+  }
+}
+
+export function saveLanguage(language: Language): void {
+  try {
+    localStorage.setItem(LANGUAGE_KEY, language)
+  } catch {
+    /* 隐私模式下无法保存时仍可在当前页面切换 */
+  }
+}
 
 export function loadName(): string {
   try {
