@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { fetchFishes, subscribeFishes } from '../api'
-import { theme } from '../theme'
 import { OceanEngine } from '../ocean/engine'
 import type { Fish } from '../types'
 
@@ -63,78 +62,32 @@ export function OceanView({ myFish, onAddFish }: Props) {
   }
 
   return (
-    <div style={wrap}>
+    <div className="ocean-view">
       <canvas
         ref={canvasRef}
         onPointerDown={onTap}
-        style={{ width: '100%', height: '100%', display: 'block', touchAction: 'none' }}
+        className="ocean-canvas"
       />
 
-      <div style={hud}>
-        <button onClick={onAddFish} style={ghostBtn}>
-          + 添加一条鱼
+      <header className="ocean-header">
+        <div className="ocean-brand">
+          <span className="brand-mark" aria-hidden="true"><span /></span>
+          <div>
+            <strong>深海共创</strong>
+            <span>海里有 {total} 条鱼</span>
+          </div>
+        </div>
+        <button onClick={onAddFish} className="add-fish-button">
+          <span aria-hidden="true">＋</span> 添加一条鱼
         </button>
-        <span style={counter}>海里有 {total} 条鱼 · 点一下鱼看看是谁画的</span>
+      </header>
+
+      <div className="ocean-tip">
+        <span aria-hidden="true">⌁</span>
+        点按看名字 · 双击听它说话
       </div>
 
-      {toast && <div style={toastStyle}>{toast}</div>}
+      {toast && <div className="ocean-toast">{toast}</div>}
     </div>
   )
-}
-
-const wrap: React.CSSProperties = {
-  position: 'fixed',
-  inset: 0,
-  background: theme.deepBottom,
-  fontFamily: theme.font,
-  overflow: 'hidden',
-}
-
-const hud: React.CSSProperties = {
-  position: 'absolute',
-  top: 'max(14px, env(safe-area-inset-top))',
-  left: 14,
-  right: 14,
-  display: 'flex',
-  gap: 12,
-  alignItems: 'center',
-  flexWrap: 'wrap',
-  pointerEvents: 'none',
-}
-
-const ghostBtn: React.CSSProperties = {
-  pointerEvents: 'auto',
-  padding: '8px 14px',
-  borderRadius: 999,
-  border: `1px solid ${theme.panelBorder}`,
-  background: 'rgba(6, 32, 45, 0.55)',
-  color: theme.ink,
-  fontSize: 13,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  backdropFilter: 'blur(6px)',
-}
-
-const counter: React.CSSProperties = {
-  fontSize: 12.5,
-  color: theme.inkDim,
-  background: 'rgba(6, 32, 45, 0.45)',
-  padding: '6px 12px',
-  borderRadius: 999,
-  backdropFilter: 'blur(6px)',
-}
-
-const toastStyle: React.CSSProperties = {
-  position: 'absolute',
-  bottom: 'max(22px, env(safe-area-inset-bottom))',
-  left: '50%',
-  transform: 'translateX(-50%)',
-  padding: '10px 18px',
-  borderRadius: 999,
-  background: 'rgba(6, 32, 45, 0.85)',
-  border: `1px solid ${theme.accentDim}`,
-  color: theme.ink,
-  fontSize: 13.5,
-  whiteSpace: 'nowrap',
-  backdropFilter: 'blur(6px)',
 }

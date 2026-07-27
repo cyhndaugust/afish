@@ -72,6 +72,17 @@ export class FishSprite {
     this.scale = scale
   }
 
+  /** 被双击时立即冲刺，方向保持不变并带一点随机的上下偏移。 */
+  triggerDash(t: number) {
+    this.dashUntil = Math.max(this.dashUntil, t + 1.35)
+    this.speed = Math.max(this.speed, this.baseSpeed * 3.4)
+    this.pitch = Math.min(
+      Math.max(this.pitch + (Math.random() - 0.5) * 0.22, -MAX_PITCH),
+      MAX_PITCH,
+    )
+    this.nextDash = t + 8 + Math.random() * 10
+  }
+
   update(dt: number, t: number, w: number, h: number) {
     // 游荡：两个不同频率的正弦叠加，够自然且无需噪声库
     this.wanderT += dt
@@ -87,7 +98,7 @@ export class FishSprite {
       this.nextDash = t + 6 + Math.random() * 12
     }
     const dashing = t < this.dashUntil
-    const target = dashing ? this.baseSpeed * 2.6 : this.baseSpeed
+    const target = dashing ? this.baseSpeed * 2.9 : this.baseSpeed
     this.speed += (target - this.speed) * Math.min(1, dt * 3)
 
     // 偶尔自发掉头，避免所有鱼都贴着边界折返
@@ -112,7 +123,7 @@ export class FishSprite {
     this.x = Math.min(Math.max(this.x, -40), w + 40)
     this.y = Math.min(Math.max(this.y, 24), h - 24)
 
-    this.phase += dt * Math.PI * 2 * this.tailFreq * (dashing ? 1.7 : 1)
+    this.phase += dt * Math.PI * 2 * this.tailFreq * (dashing ? 2.05 : 1)
   }
 
   /** 逐点变形并绘制；侧向偏移按体轴位置平方增长，头几乎不动、尾摆幅最大 */
@@ -121,6 +132,7 @@ export class FishSprite {
     const sin = Math.sin(this.pitch)
     const s = this.scale
     const breathe = Math.sin(t * 1.3 + this.id) * 2
+    const dashAmp = t < this.dashUntil ? 1.28 : 1
 
     let minX = Infinity
     let minY = Infinity
@@ -129,7 +141,7 @@ export class FishSprite {
 
     const transform = (px: number, py: number): [number, number] => {
       const u = px / CANVAS_W // 0=头 1=尾
-      const bend = this.amp * u * u * Math.sin(Math.PI * 2 * (u * this.waves) - this.phase)
+      const bend = this.amp * dashAmp * u * u * Math.sin(Math.PI * 2 * (u * this.waves) - this.phase)
       // a：体轴方向，头为正 → 头永远朝着前进方向
       const a = (CANVAS_W / 2 - px) * this.flip
       const b = py - CANVAS_H / 2 + bend + breathe

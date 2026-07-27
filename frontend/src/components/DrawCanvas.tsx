@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useImperativeHandle, useRef, forwardRef } from 'react'
 import { CANVAS_H, CANVAS_W, type Point, type Stroke } from '../types'
-import { theme } from '../theme'
 
 export interface DrawCanvasHandle {
   undo: () => void
@@ -139,6 +138,8 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   return (
     <canvas
       ref={canvasRef}
+      className={`draw-canvas${eraser ? ' is-erasing' : ''}`}
+      aria-label="小鱼绘制画布"
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}
@@ -146,13 +147,6 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
       style={{
         width: '100%',
         aspectRatio: `${CANVAS_W} / ${CANVAS_H}`,
-        display: 'block',
-        borderRadius: 16,
-        background: 'rgba(6, 32, 45, 0.72)',
-        border: `1px solid ${theme.panelBorder}`,
-        boxShadow: 'inset 0 2px 24px rgba(0,0,0,0.35)',
-        touchAction: 'none', // 触屏绘制时不触发页面滚动
-        cursor: eraser ? 'cell' : 'crosshair',
       }}
     />
   )

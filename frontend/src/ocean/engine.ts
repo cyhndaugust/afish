@@ -8,9 +8,25 @@ const MOBILE_MAX = 20
 const MIN_FISH = 8 // 性能降级的下限，再卡也保留这么多
 const LABEL_HOLD = 2.5 // 名字牌停留秒数
 const LABEL_FADE = 0.35
+const DOUBLE_TAP_WINDOW = 0.36
+
+const FISH_DIALOGUES = [
+  '等等，我先游一步！',
+  '今天的水温刚刚好。',
+  '你也喜欢这片海吗？',
+  '嘘，我在听海草说话。',
+  '跟紧我，前面有亮光。',
+  '别眨眼，我要加速啦！',
+  '我刚刚看到一颗星星。',
+  '要一起去深处看看吗？',
+  '帮我向下一条鱼问好。',
+  '海底的风，正吹向那边。',
+]
 
 interface Label {
   sprite: FishSprite
+  text: string
+  kind: 'name' | 'dialogue'
   born: number
   dying: number | null // 开始淡出的时刻
 }
@@ -33,6 +49,7 @@ export class OceanEngine {
   private label: Label | null = null
   private frameTimes: number[] = []
   private highlightId: number | null = null
+  private lastTap: { sprite: FishSprite; at: number } | null = null
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas
@@ -105,7 +122,7 @@ export class OceanEngine {
   /** 让某条已在场的鱼弹出名字牌 */
   private spotlight(id: number) {
     const sp = this.sprites.find((s) => s.id === id)
-    if (sp) this.label = { sprite: sp, born: this.t, dying: null }
+    if (sp) this.showLabel(sp, sp.name, 'name')
   }
 
   private spawn(f: Fish, entering: boolean) {
@@ -125,11 +142,18 @@ export class OceanEngine {
     }
     this.sprites.push(sp)
     if (entering && this.highlightId === f.id) {
-      this.label = { sprite: sp, born: this.t, dying: null }
+      this.showLabel(sp, sp.name, 'name')
     }
   }
 
-  /** 点击/触摸：从最上层往下命中，命中就显示名字 */
+  private showLabel(sprite: FishSprite, text: string, kind: Label['kind']) {
+    this.label = { sprite, text, kind, born: this.t, dying: null }
+  }
+
+  /**
+   * 单击显示名字；短时间内再次点中同一条鱼则视为双击，
+   * 随机说一句话并立刻加速游开。Pointer 事件同时兼容鼠标与触屏。
+   */
   handleTap(clientX: number, clientY: number) {
     const rect = this.canvas.getBoundingClientRect()
     const px = clientX - rect.left
@@ -137,13 +161,27 @@ export class OceanEngine {
     const pad = this.isMobile ? 8 : 2
 
     for (let i = this.sprites.length - 1; i >= 0; i--) {
-      if (this.sprites[i].hitTest(px, py, pad)) {
-        this.label = { sprite: this.sprites[i], born: this.t, dying: null }
-        return this.sprites[i].name
+      const sprite = this.sprites[i]
+      if (sprite.hitTest(px, py, pad)) {
+        const doubleTapped =
+          this.lastTap?.sprite === sprite && this.t - this.lastTap.at <= DOUBLE_TAP_WINDOW
+
+        if (doubleTapped) {
+          const line = FISH_DIALOGUES[Math.floor(Math.random() * FISH_DIALOGUES.length)]
+          sprite.triggerDash(this.t)
+          this.showLabel(sprite, line, 'dialogue')
+          this.lastTap = null
+          return line
+        }
+
+        this.showLabel(sprite, sprite.name, 'name')
+        this.lastTap = { sprite, at: this.t }
+        return sprite.name
       }
     }
     // 点空白：立即开始淡出
     if (this.label && this.label.dying === null) this.label.dying = this.t
+    this.lastTap = null
     return null
   }
 
@@ -185,7 +223,8 @@ export class OceanEngine {
     if (!lb) return
 
     const age = this.t - lb.born
-    if (lb.dying === null && age > LABEL_HOLD) lb.dying = this.t
+    const hold = lb.kind === 'dialogue' ? 3.2 : LABEL_HOLD
+    if (lb.dying === null && age > hold) lb.dying = this.t
 
     let alpha = Math.min(1, age / LABEL_FADE)
     if (lb.dying !== null) {
@@ -197,14 +236,14 @@ export class OceanEngine {
     }
 
     const sp = lb.sprite
-    const text = sp.name
+    const text = lb.text
     ctx.save()
-    ctx.font = `600 14px ${theme.font}`
+    ctx.font = `${lb.kind === 'dialogue' ? 500 : 650} 13px ${theme.font}`
     const tw = ctx.measureText(text).width
     const padX = 12
     const padY = 7
     const bw = tw + padX * 2
-    const bh = 14 + padY * 2
+    const bh = 13 + padY * 2
 
     // 挂在鱼身上方，贴边时自动收回画面内
     let bx = (sp.bounds.minX + sp.bounds.maxX) / 2 - bw / 2
@@ -216,10 +255,11 @@ export class OceanEngine {
     ctx.translate(0, (1 - alpha) * 6) // 淡入时轻微上浮
 
     // 气泡底
-    ctx.fillStyle = 'rgba(6, 32, 45, 0.82)'
-    ctx.strokeStyle = 'rgba(79, 209, 197, 0.55)'
+    const bubbleFill = 'rgba(244, 241, 232, 0.94)'
+    ctx.fillStyle = bubbleFill
+    ctx.strokeStyle = lb.kind === 'dialogue' ? 'rgba(201, 86, 61, 0.82)' : 'rgba(32, 56, 62, 0.36)'
     ctx.lineWidth = 1
-    roundRect(ctx, bx, by, bw, bh, 999)
+    roundRect(ctx, bx, by, bw, bh, 4)
     ctx.fill()
     ctx.stroke()
 
@@ -237,10 +277,10 @@ export class OceanEngine {
       ctx.lineTo(tipX, by - 7)
     }
     ctx.closePath()
-    ctx.fillStyle = 'rgba(6, 32, 45, 0.82)'
+    ctx.fillStyle = bubbleFill
     ctx.fill()
 
-    ctx.fillStyle = theme.ink
+    ctx.fillStyle = '#20383e'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(text, bx + bw / 2, by + bh / 2 + 0.5)
@@ -271,6 +311,7 @@ export class OceanEngine {
       const out = this.sprites.shift()
       if (!out) break
       if (this.label?.sprite === out) this.label = null
+      if (this.lastTap?.sprite === out) this.lastTap = null
       this.pool.push(out.fish)
     }
   }

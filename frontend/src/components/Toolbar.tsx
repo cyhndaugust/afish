@@ -1,4 +1,4 @@
-import { PALETTE, SIZES, theme } from '../theme'
+import { PALETTE, SIZES } from '../theme'
 
 interface Props {
   color: string
@@ -16,104 +16,69 @@ interface Props {
 
 export function Toolbar(p: Props) {
   return (
-    <div style={wrap}>
-      <div style={row}>
-        {PALETTE.map((c) => (
-          <button
-            key={c}
-            aria-label={`颜色 ${c}`}
-            onClick={() => {
-              p.onColor(c)
-              p.onEraser(false)
-            }}
-            style={{
-              ...swatch,
-              background: c,
-              outline:
-                !p.eraser && p.color === c ? `2px solid ${theme.accent}` : '2px solid transparent',
-              outlineOffset: 2,
-            }}
-          />
-        ))}
+    <div className="toolbar">
+      <div className="tool-group color-group">
+        <span className="tool-label">颜色</span>
+        <div className="swatch-list">
+          {PALETTE.map((c) => {
+            const active = !p.eraser && p.color === c
+            return (
+              <button
+                key={c}
+                className={`color-swatch${active ? ' is-active' : ''}`}
+                aria-label={`选择颜色 ${c}`}
+                aria-pressed={active}
+                onClick={() => {
+                  p.onColor(c)
+                  p.onEraser(false)
+                }}
+                style={{ background: c }}
+              >
+                {active && <span aria-hidden="true">✓</span>}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
-      <div style={row}>
-        {SIZES.map((s) => (
-          <button
-            key={s}
-            aria-label={`粗细 ${s}`}
-            onClick={() => p.onSize(s)}
-            style={{ ...chip, ...(p.size === s ? chipOn : null) }}
-          >
-            <span
-              style={{
-                width: s,
-                height: s,
-                borderRadius: '50%',
-                background: p.size === s ? theme.accent : theme.inkDim,
-                display: 'block',
-              }}
-            />
-          </button>
-        ))}
+      <div className="tool-group size-group">
+        <span className="tool-label">笔触</span>
+        <div className="segmented-control">
+          {SIZES.map((s, index) => (
+            <button
+              key={s}
+              className={p.size === s ? 'is-active' : ''}
+              aria-label={`选择${['细', '中', '粗'][index]}笔触`}
+              aria-pressed={p.size === s}
+              onClick={() => p.onSize(s)}
+            >
+              <span style={{ width: s, height: s }} />
+            </button>
+          ))}
+        </div>
+      </div>
 
-        <button
-          onClick={() => p.onEraser(!p.eraser)}
-          style={{ ...btn, ...(p.eraser ? chipOn : null) }}
-        >
-          橡皮
-        </button>
-        <button onClick={p.onUndo} disabled={!p.canUndo} style={{ ...btn, opacity: p.canUndo ? 1 : 0.4 }}>
-          撤销
-        </button>
-        <button onClick={p.onClear} style={btn}>
-          清空
-        </button>
-        <button
-          onClick={() => p.onGuide(!p.showGuide)}
-          style={{ ...btn, ...(p.showGuide ? chipOn : null) }}
-        >
-          参考线
-        </button>
+      <div className="tool-group action-group">
+        <span className="tool-label">工具</span>
+        <div className="tool-actions">
+          <button
+            className={p.eraser ? 'is-active' : ''}
+            aria-pressed={p.eraser}
+            onClick={() => p.onEraser(!p.eraser)}
+          >
+            橡皮
+          </button>
+          <button onClick={p.onUndo} disabled={!p.canUndo}>撤销</button>
+          <button onClick={p.onClear} disabled={!p.canUndo}>清空</button>
+          <button
+            className={p.showGuide ? 'is-active' : ''}
+            aria-pressed={p.showGuide}
+            onClick={() => p.onGuide(!p.showGuide)}
+          >
+            参考线
+          </button>
+        </div>
       </div>
     </div>
   )
-}
-
-const wrap: React.CSSProperties = { display: 'grid', gap: 10 }
-const row: React.CSSProperties = { display: 'flex', gap: 8, flexWrap: 'wrap', alignItems: 'center' }
-
-const swatch: React.CSSProperties = {
-  width: 28,
-  height: 28,
-  borderRadius: '50%',
-  border: '1px solid rgba(255,255,255,0.25)',
-  cursor: 'pointer',
-  padding: 0,
-}
-
-const btn: React.CSSProperties = {
-  padding: '7px 14px',
-  borderRadius: 999,
-  border: `1px solid ${theme.panelBorder}`,
-  background: theme.panel,
-  color: theme.ink,
-  fontSize: 13,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-}
-
-const chip: React.CSSProperties = {
-  ...btn,
-  width: 38,
-  height: 34,
-  padding: 0,
-  display: 'grid',
-  placeItems: 'center',
-}
-
-const chipOn: React.CSSProperties = {
-  borderColor: theme.accent,
-  background: theme.accentDim,
-  color: theme.accent,
 }

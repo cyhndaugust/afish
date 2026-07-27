@@ -1,11 +1,11 @@
 /** 深海静谧配色与共用尺寸 */
 export const theme = {
-  deepTop: '#0b2b3f',
-  deepBottom: '#041a26',
-  ink: '#e8f4f8',
-  inkDim: 'rgba(232, 244, 248, 0.62)',
-  accent: '#4fd1c5',
-  accentDim: 'rgba(79, 209, 197, 0.25)',
+  deepTop: '#26464d',
+  deepBottom: '#0b2025',
+  ink: '#f2f0e8',
+  inkDim: 'rgba(242, 240, 232, 0.62)',
+  accent: '#d46349',
+  accentDim: 'rgba(212, 99, 73, 0.24)',
   panel: 'rgba(255, 255, 255, 0.06)',
   panelBorder: 'rgba(255, 255, 255, 0.14)',
   font: `"PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", -apple-system,

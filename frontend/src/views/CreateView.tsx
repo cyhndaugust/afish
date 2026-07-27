@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { DrawCanvas, type DrawCanvasHandle } from '../components/DrawCanvas'
 import { Toolbar } from '../components/Toolbar'
-import { PALETTE, SIZES, theme } from '../theme'
+import { PALETTE, SIZES } from '../theme'
 import { createFish } from '../api'
 import { loadName } from '../storage'
 import type { Fish } from '../types'
@@ -45,135 +45,103 @@ export function CreateView({ onDone, canReturn, onCancel }: Props) {
   }
 
   return (
-    <div style={page}>
-      <div style={card}>
-        <header style={{ marginBottom: 18 }}>
-          <h1 style={title}>{canReturn ? '再画一条鱼' : '画一条鱼，放进深海'}</h1>
-          <p style={sub}>
-            {canReturn
-              ? '这条鱼会加入你已经放生的那些，一起在海里游。'
-              : '它会和其他人的鱼一起，在同一片海里游下去。'}
-          </p>
+    <div className="create-page">
+      <main className="create-shell">
+        <header className="site-header">
+          <div className="brand">
+            <span className="brand-mark" aria-hidden="true">
+              <span />
+            </span>
+            <span>深海共创</span>
+          </div>
+          {canReturn && (
+            <button className="header-link" onClick={onCancel}>
+              返回大海
+            </button>
+          )}
         </header>
 
-        <label style={label}>
-          <span style={labelText}>你的名字</span>
-          <input
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="最多 16 个字"
-            maxLength={16}
-            style={input}
-          />
-        </label>
+        <section className="create-card">
+          <header className="create-intro">
+            <div>
+              <p className="eyebrow">深海共创计划</p>
+              <h1>{canReturn ? '再画一条，加入鱼群' : '画一条鱼，放进深海'}</h1>
+              <p className="create-description">
+                {canReturn
+                  ? '留下新的颜色和笔触，让它和你之前的小鱼一起游。'
+                  : '写下名字，画出你的小鱼。它会和大家的作品一起，在同一片海里游下去。'}
+              </p>
+            </div>
+            <div className="step-list" aria-label="创作步骤">
+              <span className="step-item step-active"><b>1</b> 留名</span>
+              <i aria-hidden="true" />
+              <span className="step-item"><b>2</b> 画鱼</span>
+              <i aria-hidden="true" />
+              <span className="step-item"><b>3</b> 放生</span>
+            </div>
+          </header>
 
-        <div style={{ margin: '16px 0 12px' }}>
-          <DrawCanvas
-            ref={canvasRef}
+          <div className="name-row">
+            <label className="field-label" htmlFor="creator-name">
+              <span>你的名字</span>
+              <small>会显示在小鱼的名字牌上</small>
+            </label>
+            <div className="input-wrap">
+              <input
+                id="creator-name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                placeholder="怎么称呼你？"
+                maxLength={16}
+              />
+              <span>{name.length}/16</span>
+            </div>
+          </div>
+
+          <div className="canvas-section">
+            <div className="section-heading">
+              <div>
+                <span className="section-number">第二步</span>
+                <strong>画出你的小鱼</strong>
+              </div>
+              <span>鱼头朝左 · 大胆下笔</span>
+            </div>
+
+            <DrawCanvas
+              ref={canvasRef}
+              color={color}
+              size={size}
+              eraser={eraser}
+              showGuide={showGuide}
+              onChange={setStrokeCount}
+            />
+          </div>
+
+          <Toolbar
             color={color}
             size={size}
             eraser={eraser}
             showGuide={showGuide}
-            onChange={setStrokeCount}
+            canUndo={strokeCount > 0}
+            onColor={setColor}
+            onSize={setSize}
+            onEraser={setEraser}
+            onGuide={setShowGuide}
+            onUndo={() => canvasRef.current?.undo()}
+            onClear={() => canvasRef.current?.clear()}
           />
-        </div>
 
-        <Toolbar
-          color={color}
-          size={size}
-          eraser={eraser}
-          showGuide={showGuide}
-          canUndo={strokeCount > 0}
-          onColor={setColor}
-          onSize={setSize}
-          onEraser={setEraser}
-          onGuide={setShowGuide}
-          onUndo={() => canvasRef.current?.undo()}
-          onClear={() => canvasRef.current?.clear()}
-        />
-
-        {error && <p style={errorText}>{error}</p>}
-
-        <div style={actions}>
-          {canReturn && (
-            <button onClick={onCancel} style={secondaryBtn}>
-              返回大海
+          <div className="submit-row">
+            <div className="submit-message" role="status">
+              {error ? <span className="error-text">{error}</span> : <span>完成后，它会马上游进大海</span>}
+            </div>
+            <button className="primary-button" onClick={submit} disabled={submitting}>
+              <span>{submitting ? '正在放生…' : '放进大海'}</span>
+              {!submitting && <b aria-hidden="true">→</b>}
             </button>
-          )}
-          <button onClick={submit} disabled={submitting} style={primaryBtn}>
-            {submitting ? '正在放生…' : '放进大海 →'}
-          </button>
-        </div>
-      </div>
+          </div>
+        </section>
+      </main>
     </div>
   )
-}
-
-const page: React.CSSProperties = {
-  minHeight: '100dvh',
-  display: 'grid',
-  placeItems: 'center',
-  padding: '24px 16px',
-  background: `linear-gradient(180deg, ${theme.deepTop} 0%, ${theme.deepBottom} 100%)`,
-  fontFamily: theme.font,
-  color: theme.ink,
-}
-
-const card: React.CSSProperties = {
-  width: '100%',
-  maxWidth: 560,
-  background: 'rgba(255,255,255,0.045)',
-  border: `1px solid ${theme.panelBorder}`,
-  borderRadius: 24,
-  padding: 24,
-  backdropFilter: 'blur(8px)',
-  boxShadow: '0 20px 60px rgba(0,0,0,0.35)',
-}
-
-const title: React.CSSProperties = { margin: 0, fontSize: 24, fontWeight: 600, letterSpacing: 0.5 }
-const sub: React.CSSProperties = { margin: '6px 0 0', fontSize: 14, color: theme.inkDim }
-const label: React.CSSProperties = { display: 'grid', gap: 6 }
-const labelText: React.CSSProperties = { fontSize: 13, color: theme.inkDim }
-
-const input: React.CSSProperties = {
-  width: '100%',
-  padding: '11px 14px',
-  borderRadius: 12,
-  border: `1px solid ${theme.panelBorder}`,
-  background: 'rgba(6, 32, 45, 0.6)',
-  color: theme.ink,
-  fontSize: 15,
-  fontFamily: 'inherit',
-  outline: 'none',
-  boxSizing: 'border-box',
-}
-
-const errorText: React.CSSProperties = { color: '#fca5a5', fontSize: 13, margin: '12px 0 0' }
-
-const actions: React.CSSProperties = { display: 'flex', gap: 10, marginTop: 18 }
-
-const secondaryBtn: React.CSSProperties = {
-  flex: '0 0 auto',
-  padding: '13px 18px',
-  borderRadius: 999,
-  border: `1px solid ${theme.panelBorder}`,
-  background: theme.panel,
-  color: theme.ink,
-  fontSize: 15,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
-  whiteSpace: 'nowrap',
-}
-
-const primaryBtn: React.CSSProperties = {
-  flex: 1,
-  padding: '13px 20px',
-  borderRadius: 999,
-  border: 'none',
-  background: `linear-gradient(135deg, ${theme.accent}, #38bdf8)`,
-  color: '#052b32',
-  fontSize: 16,
-  fontWeight: 700,
-  cursor: 'pointer',
-  fontFamily: 'inherit',
 }
