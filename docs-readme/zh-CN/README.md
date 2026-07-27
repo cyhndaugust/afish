@@ -38,13 +38,13 @@
 
 ## 技术栈
 
-| 模块 | 技术 |
-| --- | --- |
-| 前端 | React 18、TypeScript、Vite |
-| 绘制 | 原生 Canvas 2D、`requestAnimationFrame` |
-| 后端 | FastAPI、Pydantic、Uvicorn |
-| 存储 | SQLite、aiosqlite |
-| 实时通信 | WebSocket |
+| 模块     | 技术                                    |
+| -------- | --------------------------------------- |
+| 前端     | React 18、TypeScript、Vite              |
+| 绘制     | 原生 Canvas 2D、`requestAnimationFrame` |
+| 后端     | FastAPI、Pydantic、Uvicorn              |
+| 存储     | SQLite、aiosqlite                       |
+| 实时通信 | WebSocket                               |
 
 ## 版本说明
 
@@ -64,8 +64,8 @@
 克隆仓库并同时启动前后端：
 
 ```bash
-git clone https://github.com/cyhndaugust/fishing.git
-cd fishing
+git clone https://github.com/cyhndaugust/afish.git
+cd afish
 ./dev.sh
 ```
 
@@ -136,12 +136,12 @@ frontend/src/
 
 ## 接口概览
 
-| 方法 | 路径 | 用途 |
-| --- | --- | --- |
-| `GET` | `/api/health` | 查看服务、鱼群和连接状态 |
-| `GET` | `/api/fishes?limit=100` | 获取最近的小鱼 |
-| `POST` | `/api/fishes` | 保存并广播一条小鱼 |
-| WebSocket | `/ws` | 接收新放生的小鱼 |
+| 方法      | 路径                    | 用途                     |
+| --------- | ----------------------- | ------------------------ |
+| `GET`     | `/api/health`           | 查看服务、鱼群和连接状态 |
+| `GET`     | `/api/fishes?limit=100` | 获取最近的小鱼           |
+| `POST`    | `/api/fishes`           | 保存并广播一条小鱼       |
+| WebSocket | `/ws`                   | 接收新放生的小鱼         |
 
 ## 公开部署注意事项
 
@@ -154,7 +154,7 @@ frontend/src/
 
 ## 参与贡献与问题反馈
 
-欢迎通过 [GitHub Issues](https://github.com/cyhndaugust/fishing/issues) 报告问题或提出改进建议。请尽量说明预期行为、实际行为和复现步骤。
+欢迎通过 [GitHub Issues](https://github.com/cyhndaugust/afish/issues) 报告问题或提出改进建议。请尽量说明预期行为、实际行为和复现步骤。
 
 ## 开源许可证
 

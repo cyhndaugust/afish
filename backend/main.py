@@ -44,7 +44,7 @@ async def lifespan(_app: FastAPI):
     yield
 
 
-app = FastAPI(title="Fish Ocean", lifespan=lifespan)
+app = FastAPI(title="afish API", lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,

@@ -52,7 +52,7 @@
 
 ## 目录结构
 ```
-fishing/
+afish/
 ├─ backend/
 │  ├─ main.py            # FastAPI app、CORS、静态文件挂载
 │  ├─ db.py              # aiosqlite 初始化 + 建表 + 查询

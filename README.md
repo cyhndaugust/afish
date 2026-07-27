@@ -38,13 +38,13 @@ The interface supports English and Chinese. The selected language is saved local
 
 ## Tech stack
 
-| Area | Technology |
-| --- | --- |
-| Frontend | React 18, TypeScript, Vite |
-| Rendering | Native Canvas 2D, `requestAnimationFrame` |
-| Backend | FastAPI, Pydantic, Uvicorn |
-| Storage | SQLite via aiosqlite |
-| Real-time updates | WebSocket |
+| Area              | Technology                                |
+| ----------------- | ----------------------------------------- |
+| Frontend          | React 18, TypeScript, Vite                |
+| Rendering         | Native Canvas 2D, `requestAnimationFrame` |
+| Backend           | FastAPI, Pydantic, Uvicorn                |
+| Storage           | SQLite via aiosqlite                      |
+| Real-time updates | WebSocket                                 |
 
 ## Version
 
@@ -64,8 +64,8 @@ The version number is defined in `frontend/package.json`. See [CHANGELOG.md](CHA
 Clone the repository and start both services:
 
 ```bash
-git clone https://github.com/cyhndaugust/fishing.git
-cd fishing
+git clone https://github.com/cyhndaugust/afish.git
+cd afish
 ./dev.sh
 ```
 
@@ -136,12 +136,12 @@ frontend/src/
 
 ## API overview
 
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `GET` | `/api/health` | Service, fish, and connection status |
-| `GET` | `/api/fishes?limit=100` | Fetch recent fish |
-| `POST` | `/api/fishes` | Store and broadcast a fish |
-| WebSocket | `/ws` | Receive newly released fish |
+| Method    | Path                    | Purpose                              |
+| --------- | ----------------------- | ------------------------------------ |
+| `GET`     | `/api/health`           | Service, fish, and connection status |
+| `GET`     | `/api/fishes?limit=100` | Fetch recent fish                    |
+| `POST`    | `/api/fishes`           | Store and broadcast a fish           |
+| WebSocket | `/ws`                   | Receive newly released fish          |
 
 ## Public deployment notes
 
@@ -154,7 +154,7 @@ frontend/src/
 
 ## Contributing and support
 
-Bug reports and improvement proposals are welcome through [GitHub Issues](https://github.com/cyhndaugust/fishing/issues). Please describe the expected behavior, actual behavior, and reproduction steps.
+Bug reports and improvement proposals are welcome through [GitHub Issues](https://github.com/cyhndaugust/afish/issues). Please describe the expected behavior, actual behavior, and reproduction steps.
 
 ## License
 
