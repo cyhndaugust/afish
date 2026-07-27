@@ -12,6 +12,7 @@
 <p align="center">
   <img alt="版本" src="https://img.shields.io/badge/version-0.1.0-334155?style=flat-square">
   <img alt="状态" src="https://img.shields.io/badge/status-preview-d97706?style=flat-square">
+  <a href="../../LICENSE"><img alt="许可证" src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-7c3aed?style=flat-square"></a>
   <img alt="React" src="https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=0b1f2a">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript&logoColor=white">
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white">
@@ -156,6 +157,13 @@ frontend/src/
 
 欢迎通过 [GitHub Issues](https://github.com/cyhndaugust/afish/issues) 报告问题或提出改进建议。请尽量说明预期行为、实际行为和复现步骤。
 
-## 开源许可证
+## 许可证
 
-项目目前尚未选择开源许可证。在添加许可证之前，代码虽然可以公开查看，但默认不授予复制、修改或分发权限。
+本项目以 [PolyForm Noncommercial License 1.0.0](../../LICENSE) 作为源码可用许可证。
+
+- 允许个人学习、研究、实验、兴趣项目及其他非商业用途。
+- 未获得著作权人另行书面授权前，不得用于商业用途，包括付费产品或服务、广告或订阅变现、转售以及企业内部业务使用。
+- 仅可为获准的非商业目的分发原版或修改版，并且必须一并保留许可证和必要声明。
+- 第三方软件与素材继续适用其原始许可证。详见[第三方声明](../../THIRD_PARTY_NOTICES.md)，其中包括 `animal-island-ui` 的署名和非商业使用要求。
+
+如需商业使用，请事先联系著作权人取得独立商业授权。本节仅为便于阅读的摘要；若与 `LICENSE` 文件存在冲突，以 `LICENSE` 为准。

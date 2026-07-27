@@ -12,6 +12,7 @@
 <p align="center">
   <img alt="Version" src="https://img.shields.io/badge/version-0.1.0-334155?style=flat-square">
   <img alt="Status" src="https://img.shields.io/badge/status-preview-d97706?style=flat-square">
+  <a href="LICENSE"><img alt="License" src="https://img.shields.io/badge/license-PolyForm%20Noncommercial%201.0.0-7c3aed?style=flat-square"></a>
   <img alt="React" src="https://img.shields.io/badge/React-18.3-61DAFB?style=flat-square&logo=react&logoColor=0b1f2a">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-5.6-3178C6?style=flat-square&logo=typescript&logoColor=white">
   <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-0.115-009688?style=flat-square&logo=fastapi&logoColor=white">
@@ -158,4 +159,11 @@ Bug reports and improvement proposals are welcome through [GitHub Issues](https:
 
 ## License
 
-No open-source license has been selected yet. Until a license is added, the source is publicly viewable but no reuse rights are granted by default.
+This project is source-available under the [PolyForm Noncommercial License 1.0.0](LICENSE).
+
+- Personal study, research, experimentation, hobby projects, and other noncommercial uses are permitted.
+- Commercial use is not permitted without separate written permission. This includes paid products or services, advertising or subscription-supported deployments, resale, and internal business use.
+- Copies and modified versions may be shared only for permitted noncommercial purposes and must include the license and required notices.
+- Third-party software and assets remain governed by their original licenses. See [Third-Party Notices](THIRD_PARTY_NOTICES.md), including the attribution and noncommercial terms for `animal-island-ui`.
+
+Contact the copyright holders before any commercial use to obtain a separate license. This summary is provided for convenience; the `LICENSE` file controls if there is any conflict.
