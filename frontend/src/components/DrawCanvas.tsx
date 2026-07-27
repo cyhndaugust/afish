@@ -17,11 +17,52 @@ interface Props {
   onChange: (strokeCount: number) => void
 }
 
-/** 橡皮判定半径系数：擦除时命中笔触即整笔删除，简单直观 */
+/** 橡皮判定半径系数 */
 const ERASER_HIT = 1.2
 
 function dist(a: Point, b: [number, number]): number {
   return Math.hypot(a[0] - b[0], a[1] - b[1])
+}
+
+function distanceToSegment(p: Point, a: Point, b: Point): number {
+  const dx = b[0] - a[0]
+  const dy = b[1] - a[1]
+  const lengthSquared = dx * dx + dy * dy
+  if (lengthSquared === 0) return dist(p, a)
+
+  const t = Math.max(0, Math.min(1, ((p[0] - a[0]) * dx + (p[1] - a[1]) * dy) / lengthSquared))
+  return Math.hypot(p[0] - (a[0] + dx * t), p[1] - (a[1] + dy * t))
+}
+
+/** 只移除橡皮命中的局部线段，保留并拆分两侧笔画 */
+function eraseStrokeAt(stroke: Stroke, p: Point, radius: number): Stroke[] {
+  const { points } = stroke
+  if (points.length === 1) return dist(points[0], p) < radius ? [] : [stroke]
+
+  const hit = points.some((point) => dist(point, p) < radius)
+    || points.slice(1).some((point, index) => distanceToSegment(p, points[index], point) < radius)
+  if (!hit) return [stroke]
+
+  const parts: Stroke[] = []
+  let current: Point[] = dist(points[0], p) >= radius ? [points[0]] : []
+
+  for (let i = 1; i < points.length; i += 1) {
+    const previous = points[i - 1]
+    const point = points[i]
+    const crossesEraser = distanceToSegment(p, previous, point) < radius
+
+    if (!crossesEraser) {
+      if (current.length === 0) current = [previous]
+      current.push(point)
+      continue
+    }
+
+    if (current.length > 0) parts.push({ ...stroke, points: current })
+    current = dist(point, p) >= radius ? [point] : []
+  }
+
+  if (current.length > 0) parts.push({ ...stroke, points: current })
+  return parts
 }
 
 export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanvas(
@@ -32,6 +73,7 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   const strokesRef = useRef<Stroke[]>([])
   const currentRef = useRef<Stroke | null>(null)
   const drawingRef = useRef(false)
+  const lastEraseRef = useRef<Point | null>(null)
 
   const redraw = useCallback(() => {
     const canvas = canvasRef.current
@@ -88,12 +130,27 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     ]
   }
 
-  const eraseAt = (p: [number, number]) => {
-    const before = strokesRef.current.length
-    strokesRef.current = strokesRef.current.filter(
-      (s) => !s.points.some((pt) => dist(pt, p) < (s.size / 2 + size) * ERASER_HIT),
-    )
-    if (strokesRef.current.length !== before) onChange(strokesRef.current.length)
+  const eraseAlong = (from: Point, to: Point) => {
+    const distance = dist(from, to)
+    const steps = Math.max(1, Math.ceil(distance / Math.max(2, size / 2)))
+    const centers = Array.from({ length: steps }, (_, index): Point => {
+      const t = (index + 1) / steps
+      return [from[0] + (to[0] - from[0]) * t, from[1] + (to[1] - from[1]) * t]
+    })
+
+    let changed = false
+    let next = strokesRef.current
+    for (const center of centers) {
+      next = next.flatMap((stroke) => {
+        const parts = eraseStrokeAt(stroke, center, (stroke.size / 2 + size) * ERASER_HIT)
+        if (parts.length !== 1 || parts[0] !== stroke) changed = true
+        return parts
+      })
+    }
+
+    if (!changed) return
+    strokesRef.current = next
+    onChange(next.length)
     redraw()
   }
 
@@ -102,7 +159,8 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     drawingRef.current = true
     const p = toLogical(e)
     if (eraser) {
-      eraseAt(p)
+      lastEraseRef.current = p
+      eraseAlong(p, p)
       return
     }
     currentRef.current = { color, size, points: [p] }
@@ -113,7 +171,9 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
     if (!drawingRef.current) return
     const p = toLogical(e)
     if (eraser) {
-      eraseAt(p)
+      const previous = lastEraseRef.current ?? p
+      eraseAlong(previous, p)
+      lastEraseRef.current = p
       return
     }
     const cur = currentRef.current
@@ -128,6 +188,7 @@ export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanva
   const onPointerUp = () => {
     if (!drawingRef.current) return
     drawingRef.current = false
+    lastEraseRef.current = null
     const cur = currentRef.current
     if (cur) {
       strokesRef.current = [...strokesRef.current, cur]
