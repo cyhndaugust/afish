@@ -8,6 +8,7 @@ export interface DrawCanvasHandle {
 }
 
 interface Props {
+  initialStrokes?: Stroke[]
   color: string
   size: number
   eraser: boolean
@@ -66,11 +67,11 @@ function eraseStrokeAt(stroke: Stroke, p: Point, radius: number): Stroke[] {
 }
 
 export const DrawCanvas = forwardRef<DrawCanvasHandle, Props>(function DrawCanvas(
-  { color, size, eraser, showGuide, label, guideText, onChange },
+  { initialStrokes = [], color, size, eraser, showGuide, label, guideText, onChange },
   ref,
 ) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const strokesRef = useRef<Stroke[]>([])
+  const strokesRef = useRef<Stroke[]>(initialStrokes)
   const currentRef = useRef<Stroke | null>(null)
   const drawingRef = useRef(false)
   const lastEraseRef = useRef<Point | null>(null)

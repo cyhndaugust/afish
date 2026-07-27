@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Button, Card, Divider, Footer, Input, Title } from 'animal-island-ui'
 import { DrawCanvas, type DrawCanvasHandle } from '../components/DrawCanvas'
 import { LanguageSwitch } from '../components/LanguageSwitch'
@@ -6,7 +6,7 @@ import { Toolbar } from '../components/Toolbar'
 import { PALETTE, SIZES } from '../theme'
 import { createFish } from '../api'
 import { COPY, type Language } from '../i18n'
-import { loadName } from '../storage'
+import { clearDraft, loadDraft, loadName, saveDraft } from '../storage'
 import type { Fish } from '../types'
 
 interface Props {
@@ -23,15 +23,24 @@ type ErrorKey = keyof typeof COPY.en.errors
 export function CreateView({ onDone, language, onLanguageChange, canReturn, onCancel }: Props) {
   const t = COPY[language]
   const canvasRef = useRef<DrawCanvasHandle>(null)
+  const [draft] = useState(loadDraft)
+  const draftCachedRef = useRef(Boolean(draft))
   // 老用户名字自动带出来，不用重新输
-  const [name, setName] = useState(loadName)
+  const [name, setName] = useState(() => draft?.name ?? loadName())
   const [color, setColor] = useState(PALETTE[1])
   const [size, setSize] = useState(SIZES[1])
   const [eraser, setEraser] = useState(false)
   const [showGuide, setShowGuide] = useState(true)
-  const [strokeCount, setStrokeCount] = useState(0)
+  const [strokeCount, setStrokeCount] = useState(draft?.strokes.length ?? 0)
+  const [clearPending, setClearPending] = useState(false)
   const [error, setError] = useState<ErrorKey | null>(null)
   const [submitting, setSubmitting] = useState(false)
+
+  useEffect(() => {
+    if (!clearPending) return
+    const timer = window.setTimeout(() => setClearPending(false), 3000)
+    return () => window.clearTimeout(timer)
+  }, [clearPending])
 
   const submit = async () => {
     setError(null)
@@ -44,12 +53,47 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
     setSubmitting(true)
     try {
       const fish = await createFish(trimmed, strokes)
+      clearDraft()
+      draftCachedRef.current = false
       onDone(fish)
     } catch {
+      saveDraft(trimmed, strokes)
+      draftCachedRef.current = true
       setError('submitFailed')
     } finally {
       setSubmitting(false)
     }
+  }
+
+  const onNameChange = (nextName: string) => {
+    setName(nextName)
+    if (!draftCachedRef.current) return
+    const strokes = canvasRef.current?.getStrokes() ?? []
+    if (strokes.length > 0) saveDraft(nextName, strokes)
+  }
+
+  const onCanvasChange = (count: number) => {
+    setStrokeCount(count)
+    setClearPending(false)
+    if (!draftCachedRef.current) return
+    const strokes = canvasRef.current?.getStrokes() ?? []
+    if (strokes.length === 0) {
+      clearDraft()
+      draftCachedRef.current = false
+      return
+    }
+    saveDraft(name, strokes)
+  }
+
+  const onClear = () => {
+    if (!clearPending) {
+      setClearPending(true)
+      return
+    }
+    clearDraft()
+    draftCachedRef.current = false
+    canvasRef.current?.clear()
+    setClearPending(false)
   }
 
   return (
@@ -109,7 +153,7 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
               <Input
                 id="creator-name"
                 value={name}
-                onChange={(e) => setName(e.target.value)}
+                onChange={(e) => onNameChange(e.target.value)}
                 placeholder={t.create.namePlaceholder}
                 maxLength={16}
                 size="large"
@@ -131,13 +175,14 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
 
             <DrawCanvas
               ref={canvasRef}
+              initialStrokes={draft?.strokes}
               color={color}
               size={size}
               eraser={eraser}
               showGuide={showGuide}
               label={t.canvas.label}
               guideText={t.canvas.guide}
-              onChange={setStrokeCount}
+              onChange={onCanvasChange}
             />
           </div>
 
@@ -150,12 +195,13 @@ export function CreateView({ onDone, language, onLanguageChange, canReturn, onCa
             eraser={eraser}
             showGuide={showGuide}
             canUndo={strokeCount > 0}
+            clearPending={clearPending}
             onColor={setColor}
             onSize={setSize}
             onEraser={setEraser}
             onGuide={setShowGuide}
             onUndo={() => canvasRef.current?.undo()}
-            onClear={() => canvasRef.current?.clear()}
+            onClear={onClear}
           />
 
           <div className="submit-row">

@@ -8,6 +8,7 @@ interface Props {
   eraser: boolean
   showGuide: boolean
   canUndo: boolean
+  clearPending: boolean
   onColor: (c: string) => void
   onSize: (s: number) => void
   onEraser: (v: boolean) => void
@@ -73,7 +74,13 @@ export function Toolbar(p: Props) {
             {t.eraser}
           </button>
           <button onClick={p.onUndo} disabled={!p.canUndo}>{t.undo}</button>
-          <button onClick={p.onClear} disabled={!p.canUndo}>{t.clear}</button>
+          <button
+            className={p.clearPending ? 'is-confirming' : ''}
+            onClick={p.onClear}
+            disabled={!p.canUndo}
+          >
+            {p.clearPending ? t.clearConfirm : t.clear}
+          </button>
           <button
             className={p.showGuide ? 'is-active' : ''}
             aria-pressed={p.showGuide}

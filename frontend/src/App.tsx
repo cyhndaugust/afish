@@ -2,13 +2,15 @@ import { useEffect, useState } from 'react'
 import { CreateView } from './views/CreateView'
 import { OceanView } from './views/OceanView'
 import { COPY, type Language } from './i18n'
-import { hasDrawn, loadLanguage, rememberFish, saveLanguage } from './storage'
+import { hasDrawn, loadDraft, loadLanguage, rememberFish, saveLanguage } from './storage'
 import type { Fish } from './types'
 
 export default function App() {
   const [language, setLanguage] = useState<Language>(loadLanguage)
   // 画过鱼的人（本机记录）刷新后直接进大海，不再要求重新绘制
-  const [view, setView] = useState<'create' | 'ocean'>(hasDrawn() ? 'ocean' : 'create')
+  const [view, setView] = useState<'create' | 'ocean'>(() => (
+    loadDraft() ? 'create' : hasDrawn() ? 'ocean' : 'create'
+  ))
   const [myFish, setMyFish] = useState<Fish | null>(null)
 
   useEffect(() => {

@@ -33,7 +33,7 @@ export const COPY = {
       nameRequired: "Please give yourself a name first",
       nameTooLong: "Your name can be up to 16 characters",
       fishRequired: "Your fish is still waiting to be drawn",
-      submitFailed: "Could not release your fish. Please try again",
+      submitFailed: "Could not release your fish. Your drawing was saved for another try",
       loadFailed:
         "The fish could not be loaded. Please check that the server is running",
     },
@@ -47,6 +47,7 @@ export const COPY = {
       eraser: "Eraser",
       undo: "Undo",
       clear: "Clear",
+      clearConfirm: "Confirm clear",
       guide: "Guide",
     },
     canvas: {
@@ -104,7 +105,7 @@ export const COPY = {
       nameRequired: "先给自己起个名字吧",
       nameTooLong: "名字最多 16 个字",
       fishRequired: "还没画鱼呢",
-      submitFailed: "提交失败，请稍后再试",
+      submitFailed: "提交失败，绘制已保存在本地，可稍后重试",
       loadFailed: "鱼群加载失败，请检查后端是否已启动",
     },
     toolbar: {
@@ -117,6 +118,7 @@ export const COPY = {
       eraser: "橡皮",
       undo: "撤销",
       clear: "清空",
+      clearConfirm: "确认清空",
       guide: "参考线",
     },
     canvas: {

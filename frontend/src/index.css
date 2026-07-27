@@ -540,6 +540,11 @@ button.header-link:hover:not(:disabled) {
   background: #59b7a2;
 }
 
+.tool-actions button.is-confirming {
+  color: #fff;
+  background: #d65757;
+}
+
 .tool-actions button:disabled {
   color: #bdb29e;
   background: #ebe4d5;

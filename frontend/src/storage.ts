@@ -1,4 +1,4 @@
-import type { Fish } from './types'
+import type { Fish, Stroke } from './types'
 import type { Language } from './i18n'
 
 /**
@@ -8,6 +8,29 @@ import type { Language } from './i18n'
 const NAME_KEY = 'fish.name'
 const MINE_KEY = 'fish.mine'
 const LANGUAGE_KEY = 'fish.language'
+const DRAFT_KEY = 'fish.draft'
+
+export interface FishDraft {
+  name: string
+  strokes: Stroke[]
+}
+
+function isStroke(value: unknown): value is Stroke {
+  if (!value || typeof value !== 'object') return false
+  const stroke = value as { color?: unknown; size?: unknown; points?: unknown }
+  return typeof stroke.color === 'string'
+    && typeof stroke.size === 'number'
+    && Array.isArray(stroke.points)
+    && stroke.points.length > 0
+    && stroke.points.every((point) => (
+      Array.isArray(point)
+      && point.length === 2
+      && typeof point[0] === 'number'
+      && Number.isFinite(point[0])
+      && typeof point[1] === 'number'
+      && Number.isFinite(point[1])
+    ))
+}
 
 /** 首次访问默认英文；选择过语言后沿用本机设置。 */
 export function loadLanguage(): Language {
@@ -39,6 +62,38 @@ export function saveName(name: string): void {
     localStorage.setItem(NAME_KEY, name)
   } catch {
     /* 存不了就算了，不影响主流程 */
+  }
+}
+
+/** 仅保存提交失败的绘制，接口恢复后可继续上传。 */
+export function loadDraft(): FishDraft | null {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY)
+    if (!raw) return null
+    const value: unknown = JSON.parse(raw)
+    if (!value || typeof value !== 'object') return null
+    const draft = value as { name?: unknown; strokes?: unknown }
+    if (typeof draft.name !== 'string' || !Array.isArray(draft.strokes)) return null
+    if (draft.strokes.length === 0 || !draft.strokes.every(isStroke)) return null
+    return { name: draft.name, strokes: draft.strokes }
+  } catch {
+    return null
+  }
+}
+
+export function saveDraft(name: string, strokes: Stroke[]): void {
+  try {
+    localStorage.setItem(DRAFT_KEY, JSON.stringify({ name, strokes }))
+  } catch {
+    /* 存储空间不足或隐私模式下仍保留当前页面内容 */
+  }
+}
+
+export function clearDraft(): void {
+  try {
+    localStorage.removeItem(DRAFT_KEY)
+  } catch {
+    /* 忽略 */
   }
 }
 
