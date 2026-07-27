@@ -103,6 +103,30 @@ cd frontend
 npm run build
 ```
 
+### Docker 部署
+
+构建并启动生产服务：
+
+```bash
+docker compose up --build -d
+```
+
+访问 <http://localhost:8080>。如需使用其他宿主机端口，可设置 `AFISH_PORT`，例如：
+
+```bash
+AFISH_PORT=80 docker compose up --build -d
+```
+
+常用运维命令：
+
+```bash
+docker compose ps
+docker compose logs -f
+docker compose down
+```
+
+鱼的数据保存在 `afish-data` Docker 卷中，重建容器不会丢失。执行 `docker compose down -v` 会同时删除这些数据。
+
 ## 工作流程
 
 1. 访客输入名字，在固定逻辑尺寸 `480 × 320` 的画布上绘制小鱼。

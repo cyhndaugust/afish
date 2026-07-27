@@ -2,13 +2,14 @@
 from __future__ import annotations
 
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List
 
 import aiosqlite
 
-DB_PATH = Path(__file__).parent / "fishes.db"
+DB_PATH = Path(os.getenv("AFISH_DB_PATH") or Path(__file__).parent / "fishes.db")
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS fishes (
@@ -55,7 +56,7 @@ async def list_fishes(limit: int = 100) -> List[Dict[str, Any]]:
             "SELECT id, name, strokes, created_at FROM fishes ORDER BY id DESC LIMIT ?",
             (limit,),
         )
-        rows = await cur.fetchall()
+        rows = list(await cur.fetchall())
     # 返回按时间正序，方便前端按加入顺序铺开
     return [_row_to_fish(r) for r in reversed(rows)]
 
@@ -63,5 +64,6 @@ async def list_fishes(limit: int = 100) -> List[Dict[str, Any]]:
 async def count_fishes() -> int:
     async with aiosqlite.connect(DB_PATH) as db:
         cur = await db.execute("SELECT COUNT(*) FROM fishes")
-        (n,) = await cur.fetchone()
-    return int(n)
+        row = await cur.fetchone()
+        assert row is not None
+    return int(row[0])

@@ -103,6 +103,30 @@ cd frontend
 npm run build
 ```
 
+### Docker deployment
+
+Build and start the production services:
+
+```bash
+docker compose up --build -d
+```
+
+Open <http://localhost:8080>. To use another host port, set `AFISH_PORT`, for example:
+
+```bash
+AFISH_PORT=80 docker compose up --build -d
+```
+
+Useful operations:
+
+```bash
+docker compose ps
+docker compose logs -f
+docker compose down
+```
+
+Fish data is stored in the `afish-data` Docker volume and survives container recreation. Running `docker compose down -v` also deletes that data.
+
 ## How it works
 
 1. The visitor enters a name and draws on a logical `480 × 320` canvas.
