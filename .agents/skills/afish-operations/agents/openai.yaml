@@ -1,0 +1,4 @@
+interface:
+  display_name: "Afish 运行与部署"
+  short_description: "安全启动、配置、部署并排查 Afish 前后端与持久化服务"
+  default_prompt: "使用 $afish-operations 启动或部署 Afish，并检查关键运行状态。"

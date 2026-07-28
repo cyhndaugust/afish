@@ -1,0 +1,4 @@
+interface:
+  display_name: "Afish 功能迭代"
+  short_description: "按项目架构与跨层契约安全实现和验证 Afish 功能迭代"
+  default_prompt: "使用 $afish-feature-development 实现一个 Afish 功能，并完成受影响链路的验证。"
